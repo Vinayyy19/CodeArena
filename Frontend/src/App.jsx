@@ -1,4 +1,5 @@
 import React from 'react';
+import { fetchWithRetry } from './lib/fetchWithRetry';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import CodingWorkspace from './components/CodingWorkspace';
@@ -21,7 +22,7 @@ function AppContent() {
 
   // Silent wake-up ping to Render backend (fires once on app load)
   React.useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });
+    fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });
   }, []);
 
   return (

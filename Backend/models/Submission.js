@@ -29,5 +29,9 @@ const submissionSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// ─── Indexes for fast query lookups ──────────────────────────────
+submissionSchema.index({ user: 1, problem: 1 });   // Fast lookup: user's submissions for a problem
+submissionSchema.index({ user: 1, createdAt: -1 }); // Fast lookup: user's submission history (newest first)
+
 const Submission = mongoose.model('Submission', submissionSchema);
 export default Submission;

@@ -1,6 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
@@ -20,21 +23,42 @@ connectDB();
 
 const app = express();
 
-// Middleware
+// ─── Security Middleware ─────────────────────────────────────────
+app.use(helmet());
+
+// ─── Request Logging ─────────────────────────────────────────────
+app.use(morgan('dev'));
+
+// ─── CORS ────────────────────────────────────────────────────────
 app.use(cors({
     origin: [
         'http://localhost:5173',
         'http://localhost:5174',
         'https://thecodearena.vercel.app',
+        'https://thecodearena.co.in',
+        'https://www.thecodearena.co.in',
     ],
     credentials: true,
 }));
-app.use(express.json());
+
+// ─── Body Parsing (10mb limit for webcam base64 payloads) ────────
+app.use(express.json({ limit: '10mb' }));
+
+// ─── Rate Limiting ───────────────────────────────────────────────
+// Prevent OTP spam: max 5 OTP requests per IP per 15 minutes
+const otpLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,
+    message: { message: 'Too many OTP requests. Please try again after 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // Health check (wake-up ping)
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Routes
+app.use('/api/auth/send-otp', otpLimiter); // Apply rate limit to OTP route
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/problems', problemRoutes);
@@ -51,3 +75,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+

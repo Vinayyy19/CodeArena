@@ -36,5 +36,9 @@ const contestSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
+// ─── Indexes for fast query lookups ──────────────────────────────
+contestSchema.index({ startTime: 1 });    // Fast sorting: contests by start time
+contestSchema.index({ createdAt: -1 });   // Fast sorting: newest contests first
+
 const Contest = mongoose.model('Contest', contestSchema);
 export default Contest;

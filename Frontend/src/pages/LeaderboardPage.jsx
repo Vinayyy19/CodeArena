@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronDown, Users, Globe2, Clock, Check, ChevronLeft, ChevronRight, Loader2, Trophy } from 'lucide-react';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
 
 const LeaderboardPage = () => {
     const [leaderboard, setLeaderboard] = useState([]);
@@ -17,7 +18,7 @@ const LeaderboardPage = () => {
         try {
             const params = new URLSearchParams({ page, limit });
             if (searchQuery) params.append('search', searchQuery);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard?${params}`);
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/leaderboard?${params}`);
             const data = await res.json();
             setLeaderboard(data.leaderboard || []);
             setTotalPages(data.totalPages || 1);

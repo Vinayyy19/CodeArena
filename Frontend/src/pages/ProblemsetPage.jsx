@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ChevronsLeft, ChevronsRight, ArrowUpDown, Hash, SlidersHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
 
 const CATEGORIES = [
     'All', 'Arrays', 'Strings', 'Dynamic Programming', 'Stacks', 'Graphs', 'Trees',
@@ -51,7 +52,7 @@ const ProblemsetPage = () => {
             if (difficultyFilter !== 'All') params.set('difficulty', difficultyFilter);
             if (debouncedSearch) params.set('search', debouncedSearch);
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/problems?${params}`);
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/problems?${params}`);
             if (res.ok) {
                 const data = await res.json();
                 setProblems(data.problems || []);

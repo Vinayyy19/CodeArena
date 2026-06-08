@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Clock, Users, ArrowRight, ShieldAlert, Flame, Zap, CalendarDays, Timer, ChevronRight, Swords, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
 
 const ContestsPage = () => {
     const [contests, setContests] = useState([]);
@@ -11,7 +12,7 @@ const ContestsPage = () => {
     useEffect(() => {
         const fetchContests = async () => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/contests`);
+                const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/contests`);
                 if (res.ok) {
                     const data = await res.json();
                     setContests(data);
