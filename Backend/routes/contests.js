@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
         const contests = await Contest.find().populate('companyId', 'name').sort({ startTime: 1 });
         res.status(200).json(contests);
     } catch (error) {
-        res.status(500).json({ message: 'Server Error fetching contests' });
+        console.error("Error in GET /api/contests:", error);
+        res.status(500).json({ message: 'Server Error fetching contests', error: error.message });
     }
 });
 
@@ -29,7 +30,8 @@ router.get('/:id', async (req, res) => {
         if (!contest) return res.status(404).json({ message: 'Contest not found' });
         res.status(200).json(contest);
     } catch (error) {
-        res.status(500).json({ message: 'Server Error fetching contest' });
+        console.error(`Error in GET /api/contests/${req.params.id}:`, error);
+        res.status(500).json({ message: 'Server Error fetching contest', error: error.message });
     }
 });
 
@@ -74,6 +76,7 @@ router.post('/', protect, async (req, res) => {
         const createdContest = await contest.save();
         res.status(201).json(createdContest);
     } catch (error) {
+        console.error("Error in POST /api/contests:", error);
         res.status(500).json({ message: 'Server Error creating contest', error: error.message });
     }
 });
@@ -101,7 +104,8 @@ router.post('/:id/register', protect, async (req, res) => {
 
         res.status(200).json({ message: 'Successfully registered for the contest!' });
     } catch (error) {
-        res.status(500).json({ message: 'Server Error during registration' });
+        console.error(`Error in POST /api/contests/${req.params.id}/register:`, error);
+        res.status(500).json({ message: 'Server Error during registration', error: error.message });
     }
 });
 

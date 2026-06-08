@@ -51,6 +51,12 @@ const CompanyDashboard = () => {
             return setMsg({ text: 'Please fill all contest fields and add at least 1 test case.', type: 'error' });
         }
 
+        // Validate that all test cases have input and expected output
+        const hasEmptyTestCase = testCases.some(tc => !tc.input.trim() || !tc.expectedOutput.trim());
+        if (hasEmptyTestCase) {
+            return setMsg({ text: 'Please fill in both input and expected output fields for all test cases.', type: 'error' });
+        }
+
         setLoading(true);
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/contests`, {
@@ -77,7 +83,8 @@ const CompanyDashboard = () => {
                 setTimeout(() => navigate('/contests'), 1500);
             } else {
                 const data = await res.json();
-                setMsg({ text: data.message || 'Failed deployment', type: 'error' });
+                const errMsg = data.error ? `${data.message} - ${data.error}` : (data.message || 'Failed deployment');
+                setMsg({ text: errMsg, type: 'error' });
             }
         } catch (err) {
             setMsg({ text: 'Server error.', type: 'error' });
