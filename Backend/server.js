@@ -1,3 +1,9 @@
+// ─── Force IPv4 DNS globally (MUST be before all other imports) ──
+// Node 18+ prefers IPv6 by default. Render cannot reach Gmail SMTP
+// over IPv6 (ENETUNREACH 2607:f8b0:...). This fixes it at the DNS layer.
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
