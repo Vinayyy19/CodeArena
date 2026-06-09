@@ -3,13 +3,27 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Transporter configuration based on user credentials
+// SMTP transporter — Force IPv4 to avoid ENETUNREACH on Render (IPv6 routes to Gmail are broken)
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // You can change this to another provider if needed
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,       // Use STARTTLS, not SSL (port 587 is more reliable on cloud hosts)
+    requireTLS: true,
+
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS,  // Must be a Gmail App Password, NOT your regular password
     },
+
+    tls: {
+        family: 4,                // FORCE IPv4 — prevents ENETUNREACH on IPv6-broken hosts
+        rejectUnauthorized: false,
+    },
+
+    // Fail fast instead of hanging 120 seconds
+    connectionTimeout: 10000,  // 10s to establish connection
+    greetingTimeout: 10000,    // 10s for SMTP greeting
+    socketTimeout: 10000,      // 10s for socket inactivity
 });
 
 export const sendOtpEmail = async (email, otp) => {

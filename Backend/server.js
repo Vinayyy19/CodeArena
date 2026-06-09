@@ -23,6 +23,10 @@ connectDB();
 
 const app = express();
 
+// ─── Trust Proxy (required for Render / reverse proxy) ───────────
+// Render sits behind a proxy — this lets express-rate-limit read the real client IP
+app.set('trust proxy', 1);
+
 // ─── Security Middleware ─────────────────────────────────────────
 app.use(helmet());
 
