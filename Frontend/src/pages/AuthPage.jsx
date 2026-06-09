@@ -79,8 +79,12 @@ const AuthPage = () => {
 
                 <div className="p-8">
                     <div className="text-center mb-8">
-                        <div className="bg-[var(--color-primary)] text-white w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(246,107,21,0.4)]">
-                            <span className="font-black text-xl tracking-tighter">&lt;&gt;</span>
+                        <div className="w-16 h-16 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(246,107,21,0.5)]">
+                            <img 
+                                src="/code-arena_shield.png" 
+                                alt="CodeArena" 
+                                className="w-full h-full object-contain"
+                            />
                         </div>
                         <h2 className="text-2xl font-bold text-white tracking-tight">Welcome to CodeArena</h2>
                         <p className="text-sm text-gray-400 mt-2">
