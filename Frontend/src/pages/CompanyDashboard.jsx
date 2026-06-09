@@ -66,7 +66,11 @@ const CompanyDashboard = () => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title, description, startTime, endTime, strictValidation,
+                    title, 
+                    description, 
+                    startTime: new Date(startTime).toISOString(), 
+                    endTime: new Date(endTime).toISOString(), 
+                    strictValidation,
                     problems: [{
                         title: title,  // Direct mapping to save users from duplicate entry
                         description: description,

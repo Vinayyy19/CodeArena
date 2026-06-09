@@ -12,10 +12,6 @@ CORS(app)
 mp_face_detection = mp.solutions.face_detection
 mp_face_mesh = mp.solutions.face_mesh
 
-# Keep models alive globally to avoid re-initializing per request
-face_detection = mp_face_detection.FaceDetection(model_selection=0, min_detection_confidence=0.5)
-face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=2, min_detection_confidence=0.5)
-
 
 def decode_base64_image(base64_string):
     try:
@@ -76,7 +72,8 @@ def analyze_frame(image):
         }
 
     # Detect faces
-    detection_results = face_detection.process(image_rgb)
+    with mp_face_detection.FaceDetection(model_selection=0, min_detection_confidence=0.5) as face_detection:
+        detection_results = face_detection.process(image_rgb)
 
     if not detection_results.detections:
         return {
@@ -94,7 +91,8 @@ def analyze_frame(image):
         }
 
     # Head pose estimation via Face Mesh
-    mesh_results = face_mesh.process(image_rgb)
+    with mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=2, min_detection_confidence=0.5) as face_mesh:
+        mesh_results = face_mesh.process(image_rgb)
 
     if not mesh_results.multi_face_landmarks:
         return {
@@ -106,8 +104,8 @@ def analyze_frame(image):
     face_landmarks = mesh_results.multi_face_landmarks[0].landmark
     roll_deg, yaw_deg = calculate_head_pose(face_landmarks, img_w, img_h)
 
-    ROLL_THRESHOLD = 25
-    YAW_THRESHOLD = 35
+    ROLL_THRESHOLD = 15
+    YAW_THRESHOLD = 22
 
     if abs(roll_deg) > ROLL_THRESHOLD:
         direction = "left" if roll_deg > 0 else "right"
@@ -134,6 +132,15 @@ def analyze_frame(image):
     }
 
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "active",
+        "service": "CodeArena Face Recognition Anti-Cheat API",
+        "version": "2.1"
+    }), 200
+
+
 @app.route('/verify-face', methods=['POST'])
 def verify_face():
     data = request.json
@@ -149,9 +156,11 @@ def verify_face():
 
 
 if __name__ == '__main__':
+    import os
+    port = int(os.environ.get("PORT", 8000))
     print("══════════════════════════════════════════════════")
-    print("  CodeArena Face Recognition Anti-Cheat API v2.1")
-    print("  HTTP: http://localhost:8000/verify-face")
+    print(f"  CodeArena Face Recognition Anti-Cheat API v2.1")
+    print(f"  HTTP: http://localhost:{port}/verify-face")
     print("  Head Tilt + Yaw Detection: ACTIVE")
     print("══════════════════════════════════════════════════")
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)

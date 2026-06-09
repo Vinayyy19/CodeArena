@@ -246,7 +246,8 @@ const CodingWorkspace = () => {
                 const imageData = canvas.toDataURL('image/jpeg', 0.8);
 
                 try {
-                    const response = await fetch('http://localhost:8000/verify-face', {
+                    const apiBaseUrl = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+                    const response = await fetch(`${apiBaseUrl}/verify-face`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: imageData })

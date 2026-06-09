@@ -51,7 +51,8 @@ const FaceRecognition = ({ active, onViolation }) => {
             const imageData = canvas.toDataURL('image/jpeg', 0.7);
 
             try {
-                const response = await fetch('http://localhost:8000/verify-face', {
+                const apiBaseUrl = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+                const response = await fetch(`${apiBaseUrl}/verify-face`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image: imageData })
@@ -82,12 +83,12 @@ const FaceRecognition = ({ active, onViolation }) => {
 
                     console.log(`[FaceRecognition] WARNING: ${data.reason} - ${data.message}`);
 
-                    // 3-second grace period before logging a strike
+                    // 1.5-second grace period (exactly 1 failed poll check) before logging a strike
                     if (!failStartTime.current) {
                         failStartTime.current = Date.now();
-                        console.log('[FaceRecognition] Grace period started (3s)');
-                    } else if (Date.now() - failStartTime.current >= 3000) {
-                        console.log('[FaceRecognition] 3s elapsed → FIRING STRIKE');
+                        console.log('[FaceRecognition] Grace period started (1.5s)');
+                    } else if (Date.now() - failStartTime.current >= 1500) {
+                        console.log('[FaceRecognition] 1.5s elapsed → FIRING STRIKE');
                         if (onViolationRef.current) onViolationRef.current(data.message || 'Face violation detected.');
                         failStartTime.current = Date.now(); // Reset for next strike
                     }
