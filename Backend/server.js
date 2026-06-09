@@ -4,8 +4,11 @@
 import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
 
-import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import * as Sentry from "@sentry/node";
+import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -21,8 +24,6 @@ import hintRoutes from './routes/hint.js';
 import editorialRoutes from './routes/editorial.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import roadmapRoutes from './routes/roadmap.js';
-
-dotenv.config();
 
 // Connect to database
 connectDB();
@@ -79,6 +80,16 @@ app.use('/api/hint', hintRoutes);
 app.use('/api/editorial', editorialRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/roadmap', roadmapRoutes);
+
+// Sentry debug route (test error reporting)
+app.get('/api/debug-sentry', (req, res) => {
+    throw new Error('Sentry test error from CodeArena Backend!');
+});
+
+// Register Sentry error handler (must be after all routes/controllers and before custom error middleware)
+if (process.env.SENTRY_DSN) {
+    Sentry.setupExpressErrorHandler(app);
+}
 
 const PORT = process.env.PORT || 5000;
 
