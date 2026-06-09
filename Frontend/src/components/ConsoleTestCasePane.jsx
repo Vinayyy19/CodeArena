@@ -30,6 +30,15 @@ const ConsoleTestCasePane = ({
 
         try {
             const token = localStorage.getItem('token');
+            if (!token || token === 'undefined' || token === 'null') {
+                setAiResult({
+                    status: 'Error',
+                    message: 'Authentication required. Please log in first to run or submit code.'
+                });
+                setLoading(false);
+                return;
+            }
+
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/submissions/${problemId}`, {
                 method: 'POST',
                 headers: {

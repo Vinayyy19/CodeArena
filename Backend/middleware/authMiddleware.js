@@ -21,7 +21,11 @@ export const protect = async (req, res, next) => {
 
             next();
         } catch (error) {
-            console.error(error);
+            if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                console.warn(`JWT Auth Warning: ${error.message}`);
+            } else {
+                console.error('Unexpected JWT Auth Error:', error);
+            }
             return res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
