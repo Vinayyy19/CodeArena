@@ -3,24 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// SMTP transporter — Force IPv4 to avoid ENETUNREACH on Render (IPv6 routes to Gmail are broken)
+// SMTP transporter — Configured for Brevo (formerly Sendinblue) on port 2525 to bypass Render port blocks
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,       // Use STARTTLS, not SSL (port 587 is more reliable on cloud hosts)
+    host: 'smtp-relay.brevo.com',
+    port: 2525,          // Use port 2525 (Render does not block this port)
+    secure: false,       // Use STARTTLS
     requireTLS: true,
 
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,  // Must be a Gmail App Password, NOT your regular password
+        user: process.env.EMAIL_USER,  // Your Brevo login email
+        pass: process.env.EMAIL_PASS,  // Your Brevo SMTP key (starts with masterkey or xkeysib)
     },
 
     tls: {
-        family: 4,                // FORCE IPv4 — prevents ENETUNREACH on IPv6-broken hosts
+        family: 4,                // Force IPv4 to avoid IPv6 routing issues on Render
         rejectUnauthorized: false,
     },
 
-    // Fail fast instead of hanging 120 seconds
+    // Fail fast instead of hanging
     connectionTimeout: 10000,  // 10s to establish connection
     greetingTimeout: 10000,    // 10s for SMTP greeting
     socketTimeout: 10000,      // 10s for socket inactivity
