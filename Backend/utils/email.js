@@ -5,8 +5,7 @@ dotenv.config();
 
 // SMTP transporter — Force IPv4 to avoid ENETUNREACH on Render (IPv6 routes to Gmail are broken)
 const transporter = nodemailer.createTransport({
-    // Hardcoded Gmail IPv4 address to bypass DNS and force IPv4 connection
-    host: '74.125.195.108',
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false,       // Use STARTTLS, not SSL (port 587 is more reliable on cloud hosts)
     requireTLS: true,
