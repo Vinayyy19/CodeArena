@@ -15,6 +15,7 @@ import SuperadminDashboard from './pages/SuperadminDashboard';
 import ContestArena from './pages/ContestArena';
 import AiRoadmapPage from './pages/AiRoadmapPage';
 import HomepageFooter from './components/homepage/HomepageFooter';
+import ScrollToTop from './components/ScrollToTop';
 
 function AppContent() {
   const location = useLocation();
@@ -68,6 +69,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AppContent />
     </Router>
   );
