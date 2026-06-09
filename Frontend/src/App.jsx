@@ -23,9 +23,11 @@ function AppContent() {
   const location = useLocation();
   const isWorkspace = location.pathname.startsWith('/workspace');
 
-  // Silent wake-up ping to Render backend (fires once on app load)
+  // Silent wake-up ping to Render backend & Proctoring API (fires once on app load)
   React.useEffect(() => {
     fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });
+    const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+    fetch(faceApi).catch(() => { });
   }, []);
 
   return (

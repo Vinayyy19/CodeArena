@@ -264,7 +264,7 @@ const CodingWorkspace = () => {
                     }
                 } catch (error) {
                     console.error("Setup API Error:", error);
-                    setSetupStatusMsg("Error connecting to Face Recognition server.");
+                    setSetupStatusMsg("Waking up anti-cheat engine... (Render free-tier boot takes 30-50s)");
                 }
             }
         };

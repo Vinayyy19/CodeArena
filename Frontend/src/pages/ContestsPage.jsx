@@ -25,6 +25,10 @@ const ContestsPage = () => {
         };
 
         fetchContests();
+        
+        // Also pre-warm the proctoring service in the background
+        const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+        fetch(faceApi).catch(() => { });
     }, []);
 
     const user = JSON.parse(localStorage.getItem('user') || 'null');
