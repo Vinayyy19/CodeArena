@@ -1,6 +1,8 @@
 import React from 'react';
 import { fetchWithRetry } from './lib/fetchWithRetry';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Navbar from './components/Navbar';
 import CodingWorkspace from './components/CodingWorkspace';
 import ProfilePage from './pages/ProfilePage';
@@ -71,6 +73,8 @@ function App() {
     <Router>
       <ScrollToTop />
       <AppContent />
+      <Analytics />
+      <SpeedInsights />
     </Router>
   );
 }
