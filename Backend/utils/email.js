@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendOtpEmail = async (email, otp) => {
     const mailOptions = {
-        from: `"CodeArena Login" <${process.env.EMAIL_USER}>`,
+        from: `"CodeArena Login" <${process.env.EMAIL_SENDER || process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Your CodeArena Secure Login OTP',
         html: `
