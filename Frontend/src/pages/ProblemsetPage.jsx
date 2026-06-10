@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ChevronsLeft, ChevronsRight, ArrowUpDown, Hash, SlidersHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
+import { useSEO } from '../lib/useSEO';
 
 const CATEGORIES = [
     'All', 'Arrays', 'Strings', 'Dynamic Programming', 'Stacks', 'Graphs', 'Trees',
@@ -13,6 +14,12 @@ const CATEGORIES = [
 const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
 
 const ProblemsetPage = () => {
+    useSEO({
+        title: "Coding Practice Problems & Algorithms | CodeArena",
+        description: "Solve competitive programming problems, practice coding interviews, and improve your skills in Python, Java, C++, JS, and Swift on CodeArena.",
+        keywords: "coding practice, practice problems, coding algorithms, coding interview prep, dynamic programming, arrays, stack, heap, binary search, graph theory"
+    });
+
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [categoryFilter, setCategoryFilter] = useState('All');

@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronDown, Users, Globe2, Clock, Check, ChevronLeft, ChevronRight, Loader2, Trophy } from 'lucide-react';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
+import { useSEO } from '../lib/useSEO';
 
 const LeaderboardPage = () => {
+    useSEO({
+        title: "Global Competitive Programming Leaderboard | CodeArena",
+        description: "See global developer ranks, solved coding problems, accept rates, and ratings on CodeArena. Compare your progress with developers worldwide.",
+        keywords: "coding leaderboard, developer ranking, top programmers, global rank, solved questions count, competitive programming leaderboard"
+    });
+
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');

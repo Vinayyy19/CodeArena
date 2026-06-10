@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, ArrowRight, ArrowLeft, Loader2, RotateCcw, Target, Brain, Clock, Rocket, Code2, Trophy, Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useSEO } from '../lib/useSEO';
 
 const QUESTIONS = [
     {
@@ -41,6 +42,12 @@ const QUESTIONS = [
 ];
 
 const AiRoadmapPage = () => {
+    useSEO({
+        title: "Personalized AI Coding Roadmaps | CodeArena",
+        description: "Generate structured learning paths for software engineering, algorithms, and web development using personalized AI analysis.",
+        keywords: "learning roadmap, AI programming, DSA learning, study guide, programming career, FAANG preparation, interview roadmap"
+    });
+
     const [step, setStep] = useState(0);
     const [answers, setAnswers] = useState({ goal: '', experience: '', timeCommitment: '' });
     const [roadmap, setRoadmap] = useState('');

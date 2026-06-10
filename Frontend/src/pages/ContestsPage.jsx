@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Clock, Users, ArrowRight, ShieldAlert, Flame, Zap, CalendarDays, Timer, ChevronRight, Swords, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
+import { useSEO } from '../lib/useSEO';
 
 const ContestsPage = () => {
+    useSEO({
+        title: "Live & Upcoming Coding Contests | CodeArena",
+        description: "Compete in real-time, AI-proctored coding contests and hackathons. Host your own contests and test programming skills against a global community.",
+        keywords: "coding contests, hackathons, programming competition, AI proctoring, online coding exam, competitive programming battles"
+    });
+
     const [contests, setContests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all'); // all, live, upcoming, ended
