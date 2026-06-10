@@ -4,20 +4,23 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import Navbar from './components/Navbar';
-import CodingWorkspace from './components/CodingWorkspace';
-import ProfilePage from './pages/ProfilePage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import AuthPage from './pages/AuthPage';
-import OnboardingPage from './pages/OnboardingPage';
-import ProblemsetPage from './pages/ProblemsetPage';
-import ContestsPage from './pages/ContestsPage';
-import CompanyDashboard from './pages/CompanyDashboard';
-import HomePage from './pages/HomePage';
-import SuperadminDashboard from './pages/SuperadminDashboard';
-import ContestArena from './pages/ContestArena';
-import AiRoadmapPage from './pages/AiRoadmapPage';
 import HomepageFooter from './components/homepage/HomepageFooter';
 import ScrollToTop from './components/ScrollToTop';
+import PageLoader from './components/PageLoader';
+
+// Lazy load page routes and heavy components to improve Core Web Vitals (LCP & TBT)
+const CodingWorkspace = React.lazy(() => import('./components/CodingWorkspace'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const LeaderboardPage = React.lazy(() => import('./pages/LeaderboardPage'));
+const AuthPage = React.lazy(() => import('./pages/AuthPage'));
+const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage'));
+const ProblemsetPage = React.lazy(() => import('./pages/ProblemsetPage'));
+const ContestsPage = React.lazy(() => import('./pages/ContestsPage'));
+const CompanyDashboard = React.lazy(() => import('./pages/CompanyDashboard'));
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const SuperadminDashboard = React.lazy(() => import('./pages/SuperadminDashboard'));
+const ContestArena = React.lazy(() => import('./pages/ContestArena'));
+const AiRoadmapPage = React.lazy(() => import('./pages/AiRoadmapPage'));
 
 function AppContent() {
   const location = useLocation();
@@ -47,21 +50,23 @@ function AppContent() {
       <div className={`z-10 flex flex-col w-full relative bg-black ${isWorkspace ? 'h-full overflow-hidden' : 'min-h-screen'}`}>
         <Navbar />
         <main className={`flex-1 flex flex-col pt-16 ${isWorkspace ? 'min-h-0 overflow-hidden' : ''}`}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/problemset" element={<ProblemsetPage />} />
-            <Route path="/contests" element={<ContestsPage />} />
-            <Route path="/company/dashboard" element={<CompanyDashboard />} />
-            <Route path="/superadmin" element={<SuperadminDashboard />} />
-            <Route path="/workspace/practice/:problemId" element={<CodingWorkspace />} />
-            <Route path="/workspace/contest/:contestId" element={<ContestArena />} />
-            <Route path="/workspace/contest/:contestId/:problemId" element={<CodingWorkspace />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/ai-roadmap" element={<AiRoadmapPage />} />
-          </Routes>
+          <React.Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/problemset" element={<ProblemsetPage />} />
+              <Route path="/contests" element={<ContestsPage />} />
+              <Route path="/company/dashboard" element={<CompanyDashboard />} />
+              <Route path="/superadmin" element={<SuperadminDashboard />} />
+              <Route path="/workspace/practice/:problemId" element={<CodingWorkspace />} />
+              <Route path="/workspace/contest/:contestId" element={<ContestArena />} />
+              <Route path="/workspace/contest/:contestId/:problemId" element={<CodingWorkspace />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/ai-roadmap" element={<AiRoadmapPage />} />
+            </Routes>
+          </React.Suspense>
         </main>
         {!isWorkspace && (
           <div className='bg-black'>

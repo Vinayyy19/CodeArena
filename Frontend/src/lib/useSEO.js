@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export function useSEO({ title, description, keywords }) {
+export function useSEO({ title, description, keywords, image, canonical }) {
   useEffect(() => {
     // 1. Update Document Title & Open Graph / Twitter Titles
     if (title) {
@@ -33,5 +33,24 @@ export function useSEO({ title, description, keywords }) {
       const metaKeywords = document.querySelector('meta[name="keywords"]');
       if (metaKeywords) metaKeywords.setAttribute('content', keywords);
     }
-  }, [title, description, keywords]);
+
+    // 4. Update Social Open Graph Image
+    if (image) {
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) ogImage.setAttribute('content', image);
+
+      const twitterImage = document.querySelector('meta[property="twitter:image"]');
+      if (twitterImage) twitterImage.setAttribute('content', image);
+    }
+
+    // 5. Update Canonical URL
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    const finalCanonical = canonical || `https://www.thecodearena.co.in${window.location.pathname}`;
+    canonicalLink.setAttribute('href', finalCanonical);
+  }, [title, description, keywords, image, canonical]);
 }
