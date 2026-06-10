@@ -33,9 +33,12 @@ const ContestsPage = () => {
 
         fetchContests();
         
-        // Also pre-warm the proctoring service in the background
-        const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
-        fetch(faceApi).catch(() => { });
+        // Also pre-warm the proctoring service in the background (real users only)
+        const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+        if (!isBot) {
+            const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+            fetch(faceApi).catch(() => { });
+        }
     }, []);
 
     const user = JSON.parse(localStorage.getItem('user') || 'null');

@@ -23,11 +23,14 @@ function AppContent() {
   const location = useLocation();
   const isWorkspace = location.pathname.startsWith('/workspace');
 
-  // Silent wake-up ping to Render backend & Proctoring API (fires once on app load)
+  // Silent wake-up ping to Render backend & Proctoring API (fires once on app load for real users only)
   React.useEffect(() => {
-    fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });
-    const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
-    fetch(faceApi).catch(() => { });
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
+    if (!isBot) {
+      fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });
+      const faceApi = import.meta.env.VITE_FACE_API_URL || 'http://localhost:8000';
+      fetch(faceApi).catch(() => { });
+    }
   }, []);
 
   return (
