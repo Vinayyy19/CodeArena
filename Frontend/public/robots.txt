@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /company/dashboard
+Disallow: /superadmin
+
+Sitemap: https://www.thecodearena.co.in/sitemap.xml
