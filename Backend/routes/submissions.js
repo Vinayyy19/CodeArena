@@ -123,25 +123,89 @@ Respond strictly with a JSON object in the following format. DO NOT wrap the JSO
 
         const aiResponse = chatCompletion.choices[0]?.message?.content;
 
+        // ─── System-Derived Confidence Scoring ───────────────────
+        // Instead of asking the LLM "how confident are you?" (unreliable),
+        // we calculate confidence from observable signals.
+        let confidence = 0;
+        let parsedResponse = null;
+
+        // Signal 1: JSON parsed successfully (0.20)
         try {
-            const parsedResponse = JSON.parse(aiResponse);
-
-            // Save the submission record to the database
-            const submission = new Submission({
-                user: req.user._id,
-                problem: problemId,
-                code: code,
-                language: parsedResponse.language || 'Auto-Inferred',
-                status: parsedResponse.status,
-                message: parsedResponse.message
-            });
-            await submission.save();
-
-            return res.status(200).json(parsedResponse);
+            parsedResponse = JSON.parse(aiResponse);
+            confidence += 0.20;
         } catch (parseError) {
             console.error("Failed to parse AI response:", aiResponse);
-            return res.status(500).json({ status: 'Error', message: 'Failed to evaluate code properly.' });
+            return res.status(500).json({
+                status: 'Error',
+                message: 'Failed to evaluate code properly.',
+                confidence: 0
+            });
         }
+
+        // Signal 2: All required fields present (0.15)
+        const hasStatus = !!parsedResponse.status;
+        const hasLanguage = !!parsedResponse.language;
+        const hasMessage = !!parsedResponse.message;
+        if (hasStatus && hasLanguage && hasMessage) {
+            confidence += 0.15;
+        } else if (hasStatus && hasMessage) {
+            confidence += 0.08; // partial credit
+        }
+
+        // Signal 3: Status is a valid enum value (0.15)
+        const validStatuses = ['Accepted', 'Wrong Answer', 'Compile Error'];
+        if (validStatuses.includes(parsedResponse.status)) {
+            confidence += 0.15;
+        }
+
+        // Signal 4: Message is substantive (0.20)
+        // Too short = low effort, too long = rambling
+        const msgLen = (parsedResponse.message || '').length;
+        if (msgLen > 20 && msgLen < 2000) {
+            confidence += 0.20;
+        } else if (msgLen > 10) {
+            confidence += 0.10; // partial
+        }
+
+        // Signal 5: Message references code constructs (0.15)
+        // Indicates the AI actually analyzed the code, not a generic response
+        const codeKeywords = [
+            'function', 'loop', 'variable', 'array', 'return', 'class',
+            'condition', 'if', 'for', 'while', 'index', 'output', 'input',
+            'edge case', 'algorithm', 'complexity', 'hash', 'map', 'list',
+            'stack', 'queue', 'string', 'integer', 'recursion', 'iterate',
+            'pointer', 'null', 'None', 'undefined', 'print', 'sort'
+        ];
+        const msgLower = (parsedResponse.message || '').toLowerCase();
+        const keywordHits = codeKeywords.filter(kw => msgLower.includes(kw.toLowerCase())).length;
+        if (keywordHits >= 3) {
+            confidence += 0.15;
+        } else if (keywordHits >= 1) {
+            confidence += 0.08;
+        }
+
+        // Signal 6: Low temperature used — constant positive signal (0.15)
+        confidence += 0.15;
+
+        // Clamp to [0, 1]
+        confidence = Math.min(1, Math.max(0, Math.round(confidence * 100) / 100));
+
+        // Save the submission record to the database
+        const submission = new Submission({
+            user: req.user._id,
+            problem: problemId,
+            code: code,
+            language: parsedResponse.language || 'Auto-Inferred',
+            status: parsedResponse.status,
+            message: parsedResponse.message,
+            confidence: confidence
+        });
+        await submission.save();
+
+        return res.status(200).json({
+            ...parsedResponse,
+            confidence: confidence
+        });
 
     } catch (error) {
         console.error("Submission Error:", error);

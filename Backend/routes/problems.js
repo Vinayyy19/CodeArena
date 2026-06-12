@@ -109,7 +109,7 @@ router.post('/superadmin', protect, async (req, res) => {
             return res.status(403).json({ message: 'Only superadmins can create practice problems' });
         }
 
-        const { title, description, difficulty, category, testCases } = req.body;
+        const { title, description, difficulty, category, testCases, starterCode } = req.body;
 
         const problem = new Problem({
             title,
@@ -117,6 +117,7 @@ router.post('/superadmin', protect, async (req, res) => {
             difficulty,
             category,
             testCases,
+            starterCode: starterCode || {},
             isMock: true // Force it to be a global practice question
         });
 
@@ -136,7 +137,7 @@ router.post('/', protect, async (req, res) => {
             return res.status(403).json({ message: 'Only companies can create problems' });
         }
 
-        const { title, description, difficulty, category, testCases, isMock } = req.body;
+        const { title, description, difficulty, category, testCases, isMock, starterCode } = req.body;
 
         const problem = new Problem({
             title,
@@ -144,6 +145,7 @@ router.post('/', protect, async (req, res) => {
             difficulty,
             category,
             testCases,
+            starterCode: starterCode || {},
             companyId: req.user._id,
             isMock: isMock || false
         });
@@ -172,7 +174,13 @@ router.post('/seed', async (req, res) => {
                 testCases: [
                     { input: "[2,7,11,15]\n9", expectedOutput: "[0,1]" },
                     { input: "[3,2,4]\n6", expectedOutput: "[1,2]" }
-                ]
+                ],
+                starterCode: {
+                    python: "def twoSum(nums, target):\n    # Write your solution here\n    pass\n",
+                    cpp: "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your solution here\n    }\n};\n",
+                    java: "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your solution here\n    }\n}\n",
+                    javascript: "function twoSum(nums, target) {\n    // Write your solution here\n}\n"
+                }
             },
             {
                 title: "Maximum Subarray",
@@ -183,7 +191,13 @@ router.post('/seed', async (req, res) => {
                 testCases: [
                     { input: "[-2,1,-3,4,-1,2,1,-5,4]", expectedOutput: "6" },
                     { input: "[1]", expectedOutput: "1" }
-                ]
+                ],
+                starterCode: {
+                    python: "def maxSubArray(nums):\n    # Write your solution here\n    pass\n",
+                    cpp: "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxSubArray(vector<int>& nums) {\n        // Write your solution here\n    }\n};\n",
+                    java: "class Solution {\n    public int maxSubArray(int[] nums) {\n        // Write your solution here\n    }\n}\n",
+                    javascript: "function maxSubArray(nums) {\n    // Write your solution here\n}\n"
+                }
             },
             {
                 title: "Valid Parentheses",
@@ -194,7 +208,13 @@ router.post('/seed', async (req, res) => {
                 testCases: [
                     { input: "()", expectedOutput: "true" },
                     { input: "()[]{}", expectedOutput: "true" }
-                ]
+                ],
+                starterCode: {
+                    python: "def isValid(s):\n    # Write your solution here\n    pass\n",
+                    cpp: "#include <string>\n#include <stack>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isValid(string s) {\n        // Write your solution here\n    }\n};\n",
+                    java: "class Solution {\n    public boolean isValid(String s) {\n        // Write your solution here\n    }\n}\n",
+                    javascript: "function isValid(s) {\n    // Write your solution here\n}\n"
+                }
             }
         ];
 

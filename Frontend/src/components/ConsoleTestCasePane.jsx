@@ -208,12 +208,46 @@ const ConsoleTestCasePane = ({
 
                         {!loading && aiResult && (
                             <div className="space-y-4">
-                                <div className={`px-4 py-2 font-bold uppercase tracking-widest text-sm rounded ${aiResult.status === 'Accepted' ? 'bg-green-500/10 text-green-500 border border-green-500/30' :
+                                {/* Status Badge */}
+                                <div className={`px-4 py-2 font-bold uppercase tracking-widest text-sm rounded flex items-center justify-between ${aiResult.status === 'Accepted' ? 'bg-green-500/10 text-green-500 border border-green-500/30' :
                                     (aiResult.status === 'Wrong Answer' ? 'bg-red-500/10 text-red-500 border border-red-500/30' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/30')
                                     }`}>
-                                    Status: {aiResult.status}
+                                    <span>Status: {aiResult.status}</span>
+                                    {aiResult.language && (
+                                        <span className="text-xs font-medium normal-case tracking-normal opacity-70">{aiResult.language}</span>
+                                    )}
                                 </div>
 
+                                {/* AI Confidence Score */}
+                                {aiResult.confidence != null && (
+                                    <div className="flex items-center gap-3 px-4 py-2.5 bg-[#1a1a1a] rounded-md border border-[#2d2d2d]">
+                                        <span className="text-xs text-gray-500 font-medium whitespace-nowrap">AI Confidence</span>
+                                        <div className="flex-1 h-1.5 bg-[#2d2d2d] rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-700 ${
+                                                    aiResult.confidence >= 0.7 ? 'bg-green-500' :
+                                                    aiResult.confidence >= 0.5 ? 'bg-yellow-500' :
+                                                    'bg-red-500'
+                                                }`}
+                                                style={{ width: `${Math.round(aiResult.confidence * 100)}%` }}
+                                            />
+                                        </div>
+                                        <span className={`text-xs font-bold font-mono ${
+                                            aiResult.confidence >= 0.7 ? 'text-green-500' :
+                                            aiResult.confidence >= 0.5 ? 'text-yellow-500' :
+                                            'text-red-500'
+                                        }`}>
+                                            {Math.round(aiResult.confidence * 100)}%
+                                        </span>
+                                        {aiResult.confidence < 0.5 && (
+                                            <span className="text-[10px] text-amber-500/80 font-medium bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                                                Manual review recommended
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* AI Feedback Message */}
                                 <div className="text-gray-300 leading-relaxed whitespace-pre-wrap bg-[#1a1a1a] p-4 rounded-md border border-[#333]">
                                     <span className="text-[var(--color-primary)] font-bold mb-2 block">AI Feedback:</span>
                                     {aiResult.message}

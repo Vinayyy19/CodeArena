@@ -14,7 +14,14 @@ const CodingWorkspace = () => {
     const [timeLeft, setTimeLeft] = useState('');
     const [localTimeLeft, setLocalTimeLeft] = useState('');
     const [localIsEnded, setLocalIsEnded] = useState(false);
-    const [code, setCode] = useState('// Write your solution here\n');
+    const [language, setLanguage] = useState('python');
+    const [code, setCode] = useState('# Write your solution here\n');
+
+    // ─── Per-language drafts & autosave ──────────────────────────
+    const draftsRef = useRef({});           // { python: "...", cpp: "..." }
+    const prevLanguageRef = useRef(language);
+    const saveTimerRef = useRef(null);      // debounce timer
+    const [saveStatus, setSaveStatus] = useState(null); // null | 'saving' | 'saved' | timestamp
 
     // Shared State for Left Pane Tabs & Arena Bot
     const [wrongAttempts, setWrongAttempts] = useState(0);
@@ -101,16 +108,145 @@ const CodingWorkspace = () => {
         setMaximizedPanel(prev => prev === panel ? null : panel);
     }, []);
 
+    // ─── Default starter code for ALL 15 languages ──────────────
+    const DEFAULT_STARTERS = {
+        python: '# Write your solution here\n\ndef solution():\n    pass\n',
+        javascript: '// Write your solution here\n\nfunction solution() {\n    // Your code here\n}\n',
+        cpp: '// Write your solution here\n\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}\n',
+        java: '// Write your solution here\n\npublic class Solution {\n    public static void main(String[] args) {\n        // Your code here\n    }\n}\n',
+        c: '// Write your solution here\n\n#include <stdio.h>\n\nint main() {\n    // Your code here\n    return 0;\n}\n',
+        csharp: '// Write your solution here\n\nusing System;\n\nclass Solution {\n    static void Main() {\n        // Your code here\n    }\n}\n',
+        typescript: '// Write your solution here\n\nfunction solution(): void {\n    // Your code here\n}\n',
+        go: '// Write your solution here\n\npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello")\n}\n',
+        rust: '// Write your solution here\n\nfn main() {\n    // Your code here\n}\n',
+        kotlin: '// Write your solution here\n\nfun main() {\n    // Your code here\n}\n',
+        swift: '// Write your solution here\n\nfunc solution() {\n    // Your code here\n}\n',
+        php: '<?php\n// Write your solution here\n\nfunction solution() {\n    // Your code here\n}\n',
+        ruby: '# Write your solution here\n\ndef solution\n  # Your code here\nend\n',
+        lua: '-- Write your solution here\n\nfunction solution()\n    -- Your code here\nend\n',
+        haskell: '-- Write your solution here\n\nmain :: IO ()\nmain = do\n    putStrLn "Hello"\n',
+    };
+
+    // Get starter code for a language — problem-specific or default
+    const getStarterCode = useCallback((lang) => {
+        if (problem?.starterCode?.[lang]) {
+            return problem.starterCode[lang];
+        }
+        return DEFAULT_STARTERS[lang] || '// Write your solution here\n';
+    }, [problem]);
+
+    // Reset code to starter template for current language
+    const handleResetCode = useCallback(() => {
+        const starter = getStarterCode(language);
+        setCode(starter);
+        draftsRef.current[language] = starter;
+    }, [language, getStarterCode]);
+
+    // ─── Per-language draft switching ────────────────────────────
+    // When language changes: save current code → load target's draft
+    const handleLanguageChange = useCallback((newLang) => {
+        // Save current code into drafts for the current language
+        draftsRef.current[prevLanguageRef.current] = code;
+
+        // Load the target language's draft, or fall back to starter
+        const targetCode = draftsRef.current[newLang] || getStarterCode(newLang);
+        setCode(targetCode);
+        setLanguage(newLang);
+        prevLanguageRef.current = newLang;
+    }, [code, getStarterCode]);
+
+    // ─── Debounced autosave (3s after last keystroke) ────────────
+    useEffect(() => {
+        if (!problemId) return;
+
+        // Clear previous timer
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+
+        setSaveStatus(null); // mark unsaved
+
+        saveTimerRef.current = setTimeout(() => {
+            // Save current code into drafts map
+            draftsRef.current[language] = code;
+
+            const saveData = {
+                drafts: { ...draftsRef.current },
+                activeLanguage: language,
+                timestamp: Date.now(),
+            };
+
+            setSaveStatus('saving');
+            try {
+                localStorage.setItem(`codearena_draft_${problemId}`, JSON.stringify(saveData));
+                setSaveStatus('saved');
+                // After 5 seconds, switch to showing timestamp
+                setTimeout(() => setSaveStatus(Date.now()), 5000);
+            } catch (e) {
+                console.error('Autosave failed:', e);
+                setSaveStatus(null);
+            }
+        }, 3000);
+
+        return () => {
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        };
+    }, [code, language, problemId]);
+
+    // ─── Silent draft restore + localStorage pruning (on mount) ─
+    useEffect(() => {
+        // Prune drafts older than 30 days
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+        try {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('codearena_draft_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if (data?.timestamp && Date.now() - data.timestamp > THIRTY_DAYS) {
+                            localStorage.removeItem(key);
+                        }
+                    } catch (e) { localStorage.removeItem(key); }
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Restore saved draft for this problem
+        if (problemId) {
+            try {
+                const saved = localStorage.getItem(`codearena_draft_${problemId}`);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data?.drafts) {
+                        draftsRef.current = data.drafts;
+                        const restoredLang = data.activeLanguage || 'python';
+                        setLanguage(restoredLang);
+                        prevLanguageRef.current = restoredLang;
+                        if (data.drafts[restoredLang]) {
+                            setCode(data.drafts[restoredLang]);
+                        }
+                        setSaveStatus(data.timestamp || null);
+                    }
+                }
+            } catch (e) { /* ignore corrupt data */ }
+        }
+    }, [problemId]);
+
+    // ─── Fetch problem & contest data ────────────────────────────
     useEffect(() => {
         const fetchWorkspaceData = async () => {
             try {
-                // Fetch Problem Data
                 if (problemId) {
                     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/problems/${problemId}`);
-                    if (res.ok) setProblem(await res.json());
+                    if (res.ok) {
+                        const problemData = await res.json();
+                        setProblem(problemData);
+
+                        // Only load starter code if no saved draft exists
+                        const hasSavedDraft = !!draftsRef.current[language];
+                        if (!hasSavedDraft && problemData.starterCode?.[language]) {
+                            setCode(problemData.starterCode[language]);
+                        }
+                    }
                 }
 
-                // Fetch Contest Data if in contest mode
                 if (contestId) {
                     const cres = await fetch(`${import.meta.env.VITE_API_URL}/api/contests/${contestId}`);
                     if (cres.ok) {
@@ -396,9 +532,13 @@ const CodingWorkspace = () => {
                                 <CodeEditorPane
                                     code={code}
                                     setCode={setCode}
+                                    language={language}
+                                    setLanguage={handleLanguageChange}
                                     disabled={isLocked}
                                     isMaximized={maximizedPanel === 'editor'}
                                     onMaximize={() => handleMaximize('editor')}
+                                    onReset={handleResetCode}
+                                    saveStatus={saveStatus}
                                 />
                             </div>
                         )}

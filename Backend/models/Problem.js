@@ -40,6 +40,11 @@ const problemSchema = new mongoose.Schema({
         ref: 'User', // If created by a company
         default: null
     },
+    starterCode: {
+        type: Map,
+        of: String,
+        default: {} // e.g. { python: "def twoSum(nums, target):\n    pass", cpp: "..." }
+    },
     isMock: {
         type: Boolean,
         default: false // True for practice categorized problems

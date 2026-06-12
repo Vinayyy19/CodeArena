@@ -26,6 +26,12 @@ const submissionSchema = new mongoose.Schema({
     },
     message: {
         type: String
+    },
+    confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+        default: null // System-derived confidence score (0.0 to 1.0)
     }
 }, { timestamps: true });
 
