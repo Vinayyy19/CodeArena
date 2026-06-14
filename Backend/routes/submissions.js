@@ -56,7 +56,7 @@ const evaluationQueue = new AsyncQueue(3);
 router.post('/:problemId', protect, async (req, res) => {
     try {
         const { problemId } = req.params;
-        const { code } = req.body;
+        const { code, customTestCases } = req.body;
 
         if (!code) {
             return res.status(400).json({ status: 'Error', message: 'Code is required.' });
@@ -73,9 +73,16 @@ router.post('/:problemId', protect, async (req, res) => {
         }
 
         // Prepare test cases string
-        const testCasesString = problem.testCases.map((tc, idx) =>
+        let testCasesString = problem.testCases.map((tc, idx) =>
             `Test Case ${idx + 1}:\nInput: ${tc.input}\nExpected Output: ${tc.expectedOutput}\n`
         ).join('\n');
+
+        if (customTestCases && Array.isArray(customTestCases) && customTestCases.length > 0) {
+            const customString = customTestCases.map((tc, idx) =>
+                `Custom Test Case ${idx + 1}:\nInput: ${tc.input}\nExpected Output: ${tc.expectedOutput}\n`
+            ).join('\n');
+            testCasesString += `\n--- User's Custom Test Cases ---\n${customString}`;
+        }
 
         // Formulate prompt
         const prompt = `You are an expert programming judge. You are evaluating a user's code submission for a coding problem.

@@ -27,7 +27,7 @@ const Navbar = () => {
         ? [...baseLinks, { name: 'Host Contest', path: '/company/dashboard', icon: Network }]
         : baseLinks;
 
-    if (user?.role === 'superadmin') {
+    if (user?.role === 'superadmin' || user?.role === 'admin') {
         navLinks = [...navLinks, { name: 'Upload Practice', path: '/superadmin', icon: UploadCloud }];
     }
 
@@ -48,7 +48,7 @@ const Navbar = () => {
             >
                 <div className="max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center justify-between h-16">
                     <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <img src="/code-arena_logo.png" alt="logo png" width={180} height={180} />
+                        <img src="/code-arena_logo.webp" alt="logo" width="180" height="58" />
                     </Link>
 
                     <div className="hidden md:flex flex-1 justify-center items-center gap-8">
@@ -57,7 +57,7 @@ const Navbar = () => {
                                 key={link.name}
                                 to={link.path}
                                 className={`flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${location.pathname === link.path
-                                    ? 'text-osu'
+                                    ? 'text-osu-text'
                                     : 'text-gray-400 hover:text-white'
                                     }`}
                             >
@@ -78,6 +78,7 @@ const Navbar = () => {
                         {localStorage.getItem('token') ? (
                             <Link
                                 to="/profile"
+                                aria-label="User Profile"
                                 className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1a1a1a] to-[#2a2a2a] flex items-center justify-center overflow-hidden border border-osu/30 hover:border-osu transition-colors shadow-[0_0_10px_rgba(220,68,5,0.2)]"
                             >
                                 <User size={16} className="text-gray-300" />
@@ -143,7 +144,7 @@ const Navbar = () => {
                                 to={link.path}
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={`flex items-center gap-3 text-lg font-semibold transition-all duration-300 ${location.pathname === link.path
-                                    ? 'text-osu translate-x-2'
+                                    ? 'text-osu-text translate-x-2'
                                     : 'text-gray-400 hover:text-white hover:translate-x-2'
                                     }`}
                             >

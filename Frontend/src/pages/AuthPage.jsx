@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { Mail, KeyRound, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
+import { useSEO } from '../lib/useSEO';
 
 const AuthPage = () => {
+    useSEO({
+        title: "Login | CodeArena",
+    });
     const [step, setStep] = useState('EMAIL'); // 'EMAIL' or 'OTP'
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSendOtp = async (e) => {
         e.preventDefault();
-        setError('');
-        if (!email) return setError('Email is required');
+        if (!email) return toast.error('Email is required');
 
         setLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, {
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
@@ -26,11 +30,12 @@ const AuthPage = () => {
 
             if (res.ok) {
                 setStep('OTP');
+                toast.success(`OTP sent to ${email}`);
             } else {
-                setError(data.message || 'Failed to send OTP');
+                toast.error(data.message || 'Failed to send OTP');
             }
         } catch (err) {
-            setError('Server error. Backend might be down.');
+            toast.error('Server error. Backend might be down.');
         } finally {
             setLoading(false);
         }
@@ -38,12 +43,11 @@ const AuthPage = () => {
 
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        setError('');
-        if (!otp) return setError('OTP is required');
+        if (!otp) return toast.error('OTP is required');
 
         setLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, {
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp })
@@ -56,32 +60,42 @@ const AuthPage = () => {
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 if (data.isNewUser) {
+                    toast.success('Account created successfully!');
                     navigate('/onboarding');
                 } else {
+                    toast.success('Logged in successfully!');
                     navigate('/profile');
                 }
             } else {
-                setError(data.message || 'Invalid OTP');
+                toast.error(data.message || 'Invalid OTP');
             }
         } catch (err) {
-            setError('Server error. Please try again.');
+            toast.error('Server error. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex-1 flex items-center justify-center p-6 bg-[#120a06] min-h-screen">
-            <div className="w-full max-w-md bg-[#1a1310] border border-[#2d1e16] rounded-2xl shadow-2xl overflow-hidden relative">
+        <div className="relative flex-1 flex items-center justify-center p-6 bg-black min-h-screen overflow-hidden">
+            
+            {/* Animated Ambient Background */}
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+                <div className="absolute top-[10%] left-[20%] w-72 h-72 bg-osu rounded-full mix-blend-screen filter blur-[80px] opacity-40 animate-blob"></div>
+                <div className="absolute top-[20%] right-[20%] w-72 h-72 bg-blue-600 rounded-full mix-blend-screen filter blur-[80px] opacity-40 animate-blob" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute bottom-[10%] left-[30%] w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-blob" style={{ animationDelay: '4s' }}></div>
+            </div>
+
+            <div className="w-full max-w-md bg-[#1a1310]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative z-10">
 
                 {/* Decorative header */}
-                <div className="h-2 w-full bg-gradient-to-r from-orange-600 via-[var(--color-primary)] to-yellow-500"></div>
+                <div className="h-1 w-full bg-gradient-to-r from-orange-600 via-[var(--color-primary)] to-yellow-500 opacity-80"></div>
 
                 <div className="p-8">
                     <div className="text-center mb-8">
                         <div className="w-16 h-16 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(246,107,21,0.5)]">
                             <img 
-                                src="/code-arena_shield.png" 
+                                src="/code-arena_shield.webp" 
                                 alt="CodeArena" 
                                 className="w-full h-full object-contain"
                             />
@@ -92,21 +106,18 @@ const AuthPage = () => {
                         </p>
                     </div>
 
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-lg mb-6 text-center">
-                            {error}
-                        </div>
-                    )}
-
                     {step === 'EMAIL' ? (
                         <form onSubmit={handleSendOtp} className="space-y-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+                                <label htmlFor="email" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                                     <input
+                                        id="email"
+                                        name="email"
                                         type="email"
-                                        className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                                        autoComplete="email"
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--color-primary)] focus:bg-white/10 transition-all placeholder-gray-500"
                                         placeholder="you@example.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
@@ -127,12 +138,15 @@ const AuthPage = () => {
                     ) : (
                         <form onSubmit={handleVerifyOtp} className="space-y-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">One-Time Password</label>
+                                <label htmlFor="otp" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">One-Time Password</label>
                                 <div className="relative">
-                                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                                     <input
+                                        id="otp"
+                                        name="otp"
                                         type="text"
-                                        className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--color-primary)] transition-colors font-mono tracking-widest text-center text-xl"
+                                        autoComplete="one-time-code"
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--color-primary)] focus:bg-white/10 transition-all font-mono tracking-widest text-center text-xl placeholder-gray-600 shadow-inner"
                                         placeholder="------"
                                         maxLength={6}
                                         value={otp}

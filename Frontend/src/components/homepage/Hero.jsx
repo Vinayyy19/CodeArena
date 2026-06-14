@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 const languageLogos = [
     { name: "Python", icon: "/icons/python.svg" },
@@ -37,42 +38,73 @@ export default function Hero() {
                                 "linear-gradient(135deg, rgba(220,68,5,0.08) 0%, transparent 40%, rgba(220,68,5,0.05) 100%)",
                         }}
                     />
-                    <div className="absolute inset-0 bg-black/80" />
+                    <div className="absolute inset-0 bg-black/90" />
                 </div>
             </div>
 
             <div className="relative z-10 py-12 md:pb-24 lg:pb-28">
                 <div className="mx-auto flex w-full max-w-screen-2xl flex-col px-6 lg:flex-row lg:items-center lg:gap-12 lg:px-12">
-                    <div className="mx-auto max-w-lg text-center lg:mx-0 lg:max-w-2xl lg:flex-1 lg:text-left">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="mx-auto max-w-lg text-center lg:mx-0 lg:max-w-2xl lg:flex-1 lg:text-left"
+                    >
 
-                        <h1 className="mt-8 max-w-2xl text-balance text-3xl font-medium text-white sm:text-3xl md:text-4xl lg:mt-6 lg:text-5xl">
-                            Host and participate in online coding contests{" "}
+                        <motion.h1 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="mt-8 max-w-2xl text-balance text-3xl font-medium text-white sm:text-3xl md:text-4xl lg:mt-6 lg:text-5xl"
+                        >
+                            Host Secure Coding Contests with{" "}
                             <span className="bg-gradient-to-r from-osu to-osu-light text-transparent bg-clip-text font-serif">
-                                in just a few clicks.
+                                Real-Time AI Proctoring.
                             </span>
-                        </h1>
+                        </motion.h1>
 
-                        <p className="mt-6 max-w-md text-pretty text-base text-white/70 sm:mt-8 sm:text-lg">
+                        <motion.p 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="mt-6 max-w-md text-pretty text-base text-white/70 sm:mt-8 sm:text-lg"
+                        >
                             An open, self-hostable platform for competitive programming and online contests.
-                        </p>
+                        </motion.p>
 
-                        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-12 sm:flex-row lg:justify-start">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5 }}
+                            className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-12 sm:flex-row lg:justify-start"
+                        >
                             <a
                                 href={localStorage.getItem('token') ? '/dashboard' : '/auth'}
                                 className="bg-osu hover:bg-osu-light text-white font-semibold px-6 py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-osu/30 flex items-center gap-2"
                             >
                                 Try It Now
                             </a>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
 
-                    <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                    <motion.div 
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8, delay: 0.4, type: "spring", bounce: 0.4 }}
+                        className="hidden lg:flex lg:flex-1 lg:justify-end"
+                    >
                         <DemoTerminal />
-                    </div>
+                    </motion.div>
                 </div>
             </div>
 
-            <div className="relative pb-6 select-none" aria-hidden>
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.8 }}
+                className="relative pb-6 select-none" 
+                aria-hidden
+            >
                 <div className="group relative m-auto max-w-6xl px-6">
                     <div className="flex flex-col items-center md:flex-row">
                         <div className="inline md:max-w-52 md:border-r md:border-white/20 md:pr-6">
@@ -94,6 +126,8 @@ export default function Hero() {
                                         <img
                                             src={lang.icon}
                                             alt={lang.name}
+                                            width="32"
+                                            height="32"
                                             className="h-8 w-8 object-contain opacity-70 group-hover/logo:opacity-100 transition-opacity"
                                         />
                                         <span className="text-sm font-medium text-gray-400 group-hover/logo:text-white transition-colors">
@@ -105,7 +139,7 @@ export default function Hero() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </section>
     );
 }
@@ -154,9 +188,9 @@ function DemoTerminal() {
 
             const lines = [
                 { text: "$ codearena run solution.ts", color: "text-gray-300" },
-                { text: "[INFO] Setting resource limits: 256MiB, 100% CPU", color: "text-osu" },
-                { text: "[INFO] Running ts-node solution.ts", color: "text-osu" },
-                { text: "[INFO] Init initialized successfully", color: "text-osu" },
+                { text: "[INFO] Setting resource limits: 256MiB, 100% CPU", color: "text-osu-text" },
+                { text: "[INFO] Running ts-node solution.ts", color: "text-osu-text" },
+                { text: "[INFO] Init initialized successfully", color: "text-osu-text" },
             ];
 
             lines.forEach((line, i) => {
@@ -217,13 +251,13 @@ function DemoTerminal() {
                         <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                         <div className="w-3 h-3 rounded-full bg-green-500/80" />
                     </div>
-                    <span className="text-xs text-gray-500 ml-2">CodeArena Judge</span>
+                    <span className="text-xs text-gray-400 ml-2">CodeArena Judge</span>
                 </div>
                 <button
                     className={`text-[10px] font-semibold px-3 py-1 rounded transition-all ${btnPressed
                         ? "bg-osu/80 text-white scale-90"
                         : phase === "done"
-                            ? "bg-osu/40 text-osu"
+                            ? "bg-osu/40 text-osu-text"
                             : "bg-osu text-white hover:bg-osu-light"
                         }`}
                     style={{ transition: "all 0.15s ease" }}
@@ -249,7 +283,7 @@ function DemoTerminal() {
                                         ? "bg-osu text-white scale-110"
                                         : stepStates[i] === "running"
                                             ? "bg-osu/50 text-white"
-                                            : "bg-gray-800 text-gray-500"
+                                            : "bg-gray-800 text-gray-400"
                                         }`}
                                 >
                                     {stepStates[i] === "completed" ? "✓" :
@@ -257,8 +291,8 @@ function DemoTerminal() {
                                             <div className="w-3 h-3 rounded-full border-2 border-osu border-t-transparent animate-spin" />
                                         ) : "·"}
                                 </div>
-                                <span className={`text-[10px] transition-colors duration-300 ${stepStates[i] === "completed" ? "text-osu" : "text-gray-500"
-                                    }`}>{step}</span>
+                                <span className={`text-[10px] transition-colors duration-300 ${stepStates[i] === "completed" ? "text-osu-text" : "text-gray-400"}`}>
+                                    {step}</span>
                             </div>
                         ))}
                     </div>
@@ -271,7 +305,7 @@ function DemoTerminal() {
                 )}
 
                 {logLines.length === 0 && (
-                    <div className="flex items-center justify-center h-[160px] text-gray-600">
+                    <div className="flex items-center justify-center h-[160px] text-gray-400">
                         <span className="text-xs">Click Run to execute...</span>
                     </div>
                 )}

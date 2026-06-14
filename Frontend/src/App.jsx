@@ -3,10 +3,14 @@ import { fetchWithRetry } from './lib/fetchWithRetry';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Toaster } from "sonner";
 import Navbar from './components/Navbar';
-import HomepageFooter from './components/homepage/HomepageFooter';
 import ScrollToTop from './components/ScrollToTop';
+import HomepageFooter from './components/homepage/HomepageFooter';
 import PageLoader from './components/PageLoader';
+import ProtectedRoute from './components/ProtectedRoute';
+import * as Sentry from "@sentry/react";
+import GlobalErrorFallback from './components/GlobalErrorFallback';
 
 // Lazy load page routes and heavy components to improve Core Web Vitals (LCP & TBT)
 const CodingWorkspace = React.lazy(() => import('./components/CodingWorkspace'));
@@ -21,6 +25,13 @@ const HomePage = React.lazy(() => import('./pages/HomePage'));
 const SuperadminDashboard = React.lazy(() => import('./pages/SuperadminDashboard'));
 const ContestArena = React.lazy(() => import('./pages/ContestArena'));
 const AiRoadmapPage = React.lazy(() => import('./pages/AiRoadmapPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+const PlatformPrivacy = React.lazy(() => import('./pages/PlatformPrivacy'));
+const PlatformTerms = React.lazy(() => import('./pages/PlatformTerms'));
+const AboutUsPage = React.lazy(() => import('./pages/AboutUsPage'));
+const SecurityPage = React.lazy(() => import('./pages/SecurityPage'));
+const CareersPage = React.lazy(() => import('./pages/CareersPage'));
+const DocsPage = React.lazy(() => import('./pages/DocsPage'));
 
 function AppContent() {
   const location = useLocation();
@@ -38,6 +49,7 @@ function AppContent() {
 
   return (
     <div className={`flex flex-col bg-[var(--color-dark-bg)] text-white font-sans relative ${isWorkspace ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
+      <ScrollToTop />
       <div className="pointer-events-none fixed inset-0 z-0">
         <div
           className="absolute inset-0"
@@ -51,21 +63,54 @@ function AppContent() {
         <Navbar />
         <main className={`flex-1 flex flex-col pt-16 ${isWorkspace ? 'min-h-0 overflow-hidden' : ''}`}>
           <React.Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/problemset" element={<ProblemsetPage />} />
-              <Route path="/contests" element={<ContestsPage />} />
-              <Route path="/company/dashboard" element={<CompanyDashboard />} />
-              <Route path="/superadmin" element={<SuperadminDashboard />} />
-              <Route path="/workspace/practice/:problemId" element={<CodingWorkspace />} />
-              <Route path="/workspace/contest/:contestId" element={<ContestArena />} />
-              <Route path="/workspace/contest/:contestId/:problemId" element={<CodingWorkspace />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/ai-roadmap" element={<AiRoadmapPage />} />
-            </Routes>
+            <Sentry.ErrorBoundary fallback={GlobalErrorFallback} showDialog={false}>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/problemset" element={<ProblemsetPage />} />
+                <Route path="/contests" element={<ContestsPage />} />
+                <Route path="/company/dashboard" element={
+                  <ProtectedRoute allowedRoles={['company']}>
+                    <CompanyDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/superadmin" element={
+                  <ProtectedRoute allowedRoles={['superadmin', 'admin']}>
+                    <SuperadminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/workspace/practice/:problemId" element={
+                  <ProtectedRoute>
+                    <CodingWorkspace />
+                  </ProtectedRoute>
+                } />
+                <Route path="/workspace/contest/:contestId" element={
+                  <ProtectedRoute>
+                    <ContestArena />
+                  </ProtectedRoute>
+                } />
+                <Route path="/workspace/contest/:contestId/:problemId" element={
+                  <ProtectedRoute>
+                    <CodingWorkspace />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/leaderboard" element={<LeaderboardPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/ai-roadmap" element={<AiRoadmapPage />} />
+                <Route path="/privacy" element={<PlatformPrivacy />} />
+                <Route path="/terms" element={<PlatformTerms />} />
+                <Route path="/about" element={<AboutUsPage />} />
+                <Route path="/security" element={<SecurityPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/docs/:section?" element={<DocsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Sentry.ErrorBoundary>
           </React.Suspense>
         </main>
         {!isWorkspace && (
@@ -81,8 +126,8 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <ScrollToTop />
       <AppContent />
+      <Toaster theme="dark" richColors position="top-center" />
       <Analytics />
       <SpeedInsights />
     </Router>

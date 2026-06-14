@@ -8,11 +8,26 @@ const ConsoleTestCasePane = ({
     submissions, setSubmissions, setRequestTabChange, disabled,
     isMaximized, onMaximize
 }) => {
-    const visibleCases = testCases || [];
+    const [customCases, setCustomCases] = useState([]);
+    const allCases = [...(testCases || []), ...customCases];
     const [activeTab, setActiveTab] = useState(0);
     const [viewMode, setViewMode] = useState('TESTCASE'); // TESTCASE or CONSOLE
     const [loading, setLoading] = useState(false);
     const [aiResult, setAiResult] = useState(null);
+
+    const addCustomCase = () => {
+        setCustomCases([...customCases, { input: '', expectedOutput: '', isCustom: true }]);
+        setActiveTab((testCases || []).length + customCases.length);
+    };
+
+    const handleCustomChange = (field, value) => {
+        const newCases = [...customCases];
+        const idx = activeTab - (testCases || []).length;
+        if (idx >= 0 && idx < newCases.length) {
+            newCases[idx][field] = value;
+            setCustomCases(newCases);
+        }
+    };
 
     const handleSubmit = async () => {
         if (!problemId) return;
@@ -45,7 +60,7 @@ const ConsoleTestCasePane = ({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ code: cleanCode })
+                body: JSON.stringify({ code: cleanCode, customTestCases: customCases })
             });
 
             const data = await res.json();
@@ -142,26 +157,29 @@ const ConsoleTestCasePane = ({
                 {viewMode === 'TESTCASE' && (
                     <>
                         <div className="flex items-center gap-2 mb-6 text-sm overflow-x-auto no-scrollbar pb-1">
-                            {visibleCases.map((tc, index) => (
+                            {allCases.map((tc, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setActiveTab(index)}
-                                    className={`whitespace-nowrap px-4 py-1.5 rounded-md font-medium transition-colors ${activeTab === index
+                                    className={`whitespace-nowrap px-4 py-1.5 rounded-md font-medium transition-colors flex items-center gap-2 ${activeTab === index
                                         ? 'bg-[#2a2a2a] text-[var(--color-primary)] font-semibold border border-[var(--color-primary)]/30'
                                         : 'bg-black text-gray-400 hover:text-gray-200 hover:bg-[#2a2a2a]'
                                         }`}
                                 >
-                                    Case {index + 1}
+                                    {tc.isCustom ? 'Custom' : `Case ${index + 1}`}
                                 </button>
                             ))}
-                            <button className="px-4 py-1.5 rounded-md bg-black text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] font-medium transition-colors flex items-center gap-1 ml-auto whitespace-nowrap">
+                            <button 
+                                onClick={addCustomCase}
+                                className="px-4 py-1.5 rounded-md bg-black text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] font-medium transition-colors flex items-center gap-1 ml-auto whitespace-nowrap"
+                            >
                                 <Plus size={14} /> Custom
                             </button>
                         </div>
 
-                        {visibleCases.length > 0 ? (
+                        {allCases.length > 0 ? (
                             <div className="space-y-4">
-                                {visibleCases[activeTab]?.isHidden ? (
+                                {allCases[activeTab]?.isHidden ? (
                                     <div className="flex flex-col items-center justify-center p-8 bg-[#1a1a1a] border border-[#333] rounded-md text-center">
                                         <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center mb-4 border border-indigo-500/20">
                                             <Bot size={24} className="text-indigo-500" />
@@ -173,15 +191,33 @@ const ConsoleTestCasePane = ({
                                     <>
                                         <div>
                                             <div className="text-xs text-gray-400 mb-1.5 font-mono">Input:</div>
-                                            <div className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm focus-within:border-[var(--color-primary)] transition-colors whitespace-pre-wrap outline-none" contentEditable suppressContentEditableWarning>
-                                                {visibleCases[activeTab]?.input}
-                                            </div>
+                                            {allCases[activeTab]?.isCustom ? (
+                                                <textarea
+                                                    value={allCases[activeTab].input}
+                                                    onChange={(e) => handleCustomChange('input', e.target.value)}
+                                                    placeholder="Enter your custom input..."
+                                                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm focus:border-[var(--color-primary)] transition-colors min-h-[80px] outline-none resize-y"
+                                                />
+                                            ) : (
+                                                <div className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm whitespace-pre-wrap">
+                                                    {allCases[activeTab]?.input}
+                                                </div>
+                                            )}
                                         </div>
                                         <div>
                                             <div className="text-xs text-gray-400 mb-1.5 font-mono mt-4">Expected Output:</div>
-                                            <div className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm whitespace-pre-wrap outline-none">
-                                                {visibleCases[activeTab]?.expectedOutput}
-                                            </div>
+                                            {allCases[activeTab]?.isCustom ? (
+                                                <textarea
+                                                    value={allCases[activeTab].expectedOutput}
+                                                    onChange={(e) => handleCustomChange('expectedOutput', e.target.value)}
+                                                    placeholder="Enter expected output..."
+                                                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm focus:border-[var(--color-primary)] transition-colors min-h-[80px] outline-none resize-y"
+                                                />
+                                            ) : (
+                                                <div className="w-full bg-[#1a1a1a] border border-[#333] rounded-md px-3 py-2 text-gray-300 font-mono text-sm whitespace-pre-wrap">
+                                                    {allCases[activeTab]?.expectedOutput}
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 )}

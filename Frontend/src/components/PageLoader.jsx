@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react';
 
 export default function PageLoader() {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] bg-black text-white relative">
+    <div className="flex-1 flex flex-col items-center justify-center min-h-[100vh] bg-black text-white relative">
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[var(--color-primary)]/5 rounded-full blur-[80px] pointer-events-none" />
       

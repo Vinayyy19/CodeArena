@@ -7,8 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        osu: '#dc4405',
-        'osu-light': '#f97316',
+        osu: '#b73100',
+        'osu-light': '#dc4405',
+        'osu-text': '#ff8a5c',
         'arena-dark': '#0a0a0a',
         'arena-card': 'rgba(0, 0, 0, 0.8)',
         'arena-border': 'rgba(220, 68, 5, 0.6)',
@@ -30,12 +31,23 @@ export default {
           from: { opacity: '0', transform: 'translateX(30px)' },
           to: { opacity: '1', transform: 'translateX(0)' },
         },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        },
+        blob: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
+        },
       },
       animation: {
         marquee: 'marquee 25s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
         'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
         'slide-in': 'slideInRight 0.4s ease-out forwards',
+        shimmer: 'shimmer 2s infinite',
+        blob: 'blob 7s infinite',
       },
     },
   },

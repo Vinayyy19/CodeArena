@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, ChevronDown, Users, Globe2, Clock, Check, ChevronLeft, ChevronRight, Loader2, Trophy } from 'lucide-react';
+import { Search, ChevronDown, Users, Globe2, Clock, Check, ChevronLeft, ChevronRight, Loader2, Trophy, ShieldAlert } from 'lucide-react';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
 import { useSEO } from '../lib/useSEO';
+import { Skeleton } from '../components/Skeleton';
 
 const LeaderboardPage = () => {
     useSEO({
@@ -12,6 +13,7 @@ const LeaderboardPage = () => {
 
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -26,12 +28,18 @@ const LeaderboardPage = () => {
             const params = new URLSearchParams({ page, limit });
             if (searchQuery) params.append('search', searchQuery);
             const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/leaderboard?${params}`);
-            const data = await res.json();
-            setLeaderboard(data.leaderboard || []);
-            setTotalPages(data.totalPages || 1);
-            setTotalUsers(data.totalUsers || 0);
+            if (res.ok) {
+                const data = await res.json();
+                setLeaderboard(data.leaderboard || []);
+                setTotalPages(data.totalPages || 1);
+                setTotalUsers(data.totalUsers || 0);
+                setError(null);
+            } else {
+                throw new Error("Failed to load leaderboard");
+            }
         } catch (err) {
             console.error('Leaderboard fetch failed:', err);
+            setError("Failed to load leaderboard. Please check your connection and try again.");
         } finally {
             setLoading(false);
         }
@@ -160,6 +168,9 @@ const LeaderboardPage = () => {
                     <div className="relative w-full">
                         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                         <input
+                            id="searchQuery"
+                            name="searchQuery"
+                            aria-label="Search contestants"
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -188,16 +199,28 @@ const LeaderboardPage = () => {
                     {loading && leaderboard.length === 0 ? (
                         <div className="divide-y divide-[#2d1e16]">
                             {[...Array(6)].map((_, i) => (
-                                <div key={i} className="flex items-center gap-3 p-4 animate-pulse">
-                                    <div className="w-6 h-4 bg-[#2d1e16] rounded flex-shrink-0" />
-                                    <div className="w-8 h-8 rounded-full bg-[#2d1e16] flex-shrink-0" />
+                                <div key={i} className="flex items-center gap-3 p-4">
+                                    <Skeleton className="w-6 h-4 rounded flex-shrink-0" />
+                                    <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                        <div className="h-4 w-24 sm:w-32 bg-[#2d1e16] rounded mb-1" />
-                                        <div className="h-3 w-16 bg-[#2d1e16] rounded" />
+                                        <Skeleton className="h-4 w-24 sm:w-32 rounded mb-1" />
+                                        <Skeleton className="h-3 w-16 rounded" />
                                     </div>
-                                    <div className="h-5 w-8 bg-[#2d1e16] rounded flex-shrink-0" />
+                                    <Skeleton className="h-5 w-8 rounded flex-shrink-0" />
                                 </div>
                             ))}
+                        </div>
+                    ) : error ? (
+                        <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-red-400 px-4">
+                            <ShieldAlert size={48} className="sm:w-12 sm:h-12 mb-4 text-red-500/50" />
+                            <p className="font-bold text-base sm:text-lg text-red-300">Connection Error</p>
+                            <p className="text-xs sm:text-sm mt-1 text-center max-w-md mx-auto">{error}</p>
+                            <button 
+                                onClick={fetchLeaderboard} 
+                                className="mt-6 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-6 py-2.5 rounded-lg font-bold text-sm transition-all"
+                            >
+                                Retry Connection
+                            </button>
                         </div>
                     ) : tableUsers.length === 0 && top3.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-gray-500 px-4">

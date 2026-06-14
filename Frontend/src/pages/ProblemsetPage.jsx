@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ChevronsLeft, ChevronsRight, ArrowUpDown, Hash, SlidersHorizontal } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ChevronsLeft, ChevronsRight, ArrowUpDown, Hash, SlidersHorizontal, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
 import { useSEO } from '../lib/useSEO';
+import { Skeleton } from '../components/Skeleton';
 
 const CATEGORIES = [
     'All', 'Arrays', 'Strings', 'Dynamic Programming', 'Stacks', 'Graphs', 'Trees',
@@ -22,6 +23,7 @@ const ProblemsetPage = () => {
 
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [difficultyFilter, setDifficultyFilter] = useState('All');
     const [search, setSearch] = useState('');
@@ -65,9 +67,13 @@ const ProblemsetPage = () => {
                 setProblems(data.problems || []);
                 setTotalCount(data.totalCount || 0);
                 setTotalPages(data.totalPages || 1);
+                setError(null);
+            } else {
+                throw new Error("Failed to load problems");
             }
         } catch (error) {
             console.error('Failed to fetch problems', error);
+            setError("Failed to load practice problems. Please check your connection and try again.");
         } finally {
             setLoading(false);
         }
@@ -240,15 +246,29 @@ const ProblemsetPage = () => {
                         <tbody className="divide-y divide-[#2d1e16] text-sm">
                             {loading ? (
                                 [...Array(10)].map((_, i) => (
-                                    <tr key={i} className="animate-pulse">
-                                        <td className="px-4 py-3.5 text-center"><div className="w-5 h-5 rounded bg-[#2d1e16] mx-auto" /></td>
-                                        <td className="px-4 py-3.5"><div className="w-8 h-4 bg-[#2d1e16] rounded" /></td>
-                                        <td className="px-4 py-3.5"><div className="w-48 h-4 bg-[#2d1e16] rounded" /></td>
-                                        <td className="px-4 py-3.5 hidden md:table-cell"><div className="w-20 h-4 bg-[#2d1e16] rounded-full" /></td>
-                                        <td className="px-4 py-3.5"><div className="w-14 h-4 bg-[#2d1e16] rounded" /></td>
-                                        <td className="px-4 py-3.5 text-right"><div className="w-16 h-7 bg-[#2d1e16] rounded-lg ml-auto" /></td>
+                                    <tr key={i}>
+                                        <td className="px-4 py-3.5 text-center"><Skeleton className="w-5 h-5 rounded mx-auto" /></td>
+                                        <td className="px-4 py-3.5"><Skeleton className="w-8 h-4 rounded" /></td>
+                                        <td className="px-4 py-3.5"><Skeleton className="w-48 h-4 rounded" /></td>
+                                        <td className="px-4 py-3.5 hidden md:table-cell"><Skeleton className="w-20 h-4 rounded-full" /></td>
+                                        <td className="px-4 py-3.5"><Skeleton className="w-14 h-4 rounded" /></td>
+                                        <td className="px-4 py-3.5 text-right"><Skeleton className="w-16 h-7 rounded-lg ml-auto" /></td>
                                     </tr>
                                 ))
+                            ) : error ? (
+                                <tr>
+                                    <td colSpan={6} className="p-16 text-center text-red-400">
+                                        <ShieldAlert size={48} className="mx-auto mb-4 text-red-500/50" />
+                                        <p className="text-lg font-bold mb-2 text-red-300">Connection Error</p>
+                                        <p className="text-sm mb-6 max-w-md mx-auto">{error}</p>
+                                        <button 
+                                            onClick={fetchProblems} 
+                                            className="bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 px-6 py-2.5 rounded-lg font-bold text-sm transition-all"
+                                        >
+                                            Retry Connection
+                                        </button>
+                                    </td>
+                                </tr>
                             ) : problems.length > 0 ? (
                                 problems.map((problem) => (
                                     <tr

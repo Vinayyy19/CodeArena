@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
     Code2, Trophy, MessageCircle, Zap, Activity,
     CheckCircle, XCircle, CircleDot, HelpCircle,
@@ -124,7 +125,7 @@ function MockQA() {
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="font-medium text-white text-sm">{q.user}</span>
-                                <span className="shrink-0 rounded bg-osu/20 px-1 py-0.5 text-[9px] text-osu">{q.problem}</span>
+                                <span className="shrink-0 rounded bg-osu/20 px-1 py-0.5 text-[9px] text-osu-text">{q.problem}</span>
                             </div>
                             <p className="mt-0.5 text-gray-300 line-clamp-1 text-xs">{q.question}</p>
                         </div>
@@ -285,7 +286,7 @@ function CountdownTimer() {
                         <div className="bg-[#1a1a1a] border border-white/10 rounded-lg px-4 py-2.5 min-w-[56px] text-center">
                             <span className="text-white text-2xl font-bold font-mono">{unit.value}</span>
                         </div>
-                        <span className="text-gray-500 text-[10px] font-medium mt-1.5 tracking-wider">{unit.label}</span>
+                        <span className="text-gray-400 text-[10px] font-medium mt-1.5 tracking-wider">{unit.label}</span>
                     </div>
                     {i < units.length - 1 && (
                         <span className="text-gray-500 text-xl font-bold mb-5">:</span>
@@ -323,19 +324,25 @@ function MockActivityChart() {
 /* ───── Feature Card Wrapper ───── */
 function FeatureCard({ children, className }) {
     return (
-        <div className={cn(
-            "group relative rounded-none shadow-zinc-950/5",
-            "bg-black/80 text-white border border-osu/60 backdrop-blur",
-            "w-full max-w-full overflow-hidden",
-            className
-        )}>
+        <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className={cn(
+                "group relative rounded-none shadow-zinc-950/5",
+                "bg-black/90 text-white border border-osu/60 backdrop-blur",
+                "w-full max-w-full overflow-hidden",
+                className
+            )}
+        >
             {/* Corner decorators */}
             <span className="border-osu absolute -left-px -top-px block w-2 h-2 border-l-2 border-t-2" />
             <span className="border-osu absolute -right-px -top-px block w-2 h-2 border-r-2 border-t-2" />
             <span className="border-osu absolute -bottom-px -left-px block w-2 h-2 border-b-2 border-l-2" />
             <span className="border-osu absolute -bottom-px -right-px block w-2 h-2 border-b-2 border-r-2" />
             {children}
-        </div>
+        </motion.div>
     );
 }
 
@@ -368,13 +375,19 @@ export default function Features() {
         <section id="features" className="py-10 md:py-14 px-4 text-white overflow-x-hidden">
             <div className="relative mx-auto w-full overflow-hidden rounded-3xl">
                 <div className="relative mx-auto w-full max-w-5xl px-4 md:px-6 py-10 md:py-14">
-                    <h2 className="text-2xl md:text-4xl font-medium text-center w-full mx-auto max-w-3xl px-4 md:px-6 mb-8 text-white">
+                    <motion.h2 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.6 }}
+                        className="text-2xl md:text-4xl font-medium text-center w-full mx-auto max-w-3xl px-4 md:px-6 mb-8 text-white"
+                    >
                         CodeArena offers all the tools you need to{" "}
                         <span className="bg-gradient-to-r from-osu to-osu-light text-transparent bg-clip-text font-serif italic font-semibold">
                             host, participate in, and organize{" "}
                         </span>
                         programming contests.
-                    </h2>
+                    </motion.h2>
 
                     <div className="mx-auto grid w-full gap-1 lg:grid-cols-2">
                         {/* Code Editor */}
@@ -417,19 +430,28 @@ export default function Features() {
                         </FeatureCard>
 
                         {/* Why CodeArena */}
-                        <div className="lg:col-span-2 py-10 md:py-14">
-                            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-3">
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, margin: "-50px" }}
+                            variants={{
+                                hidden: { opacity: 0 },
+                                visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+                            }}
+                            className="lg:col-span-2 py-10 md:py-14"
+                        >
+                            <motion.h2 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-3xl md:text-4xl font-bold text-center text-white mb-3">
                                 Why CodeArena?
-                            </h2>
-                            <p className="text-center text-gray-400 text-sm md:text-base max-w-2xl mx-auto mb-10">
+                            </motion.h2>
+                            <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-center text-gray-400 text-sm md:text-base max-w-2xl mx-auto mb-10">
                                 We provide the best environment for you to grow as a developer with state-of-the-art tools and community support.
-                            </p>
+                            </motion.p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {[
                                     {
                                         icon: Zap,
                                         title: "Real-time Compilers",
-                                        desc: "Run your code instantly in 20+ languages with our lightning fast execution engine and detailed debug info.",
+                                        desc: "Run your code instantly in 15+ languages with our lightning fast execution engine and detailed debug info.",
                                     },
                                     {
                                         icon: Trophy,
@@ -442,19 +464,20 @@ export default function Features() {
                                         desc: "Practice with AI-powered mock interviews and get ready for your dream tech job.",
                                     },
                                 ].map((item) => (
-                                    <div
+                                    <motion.div
                                         key={item.title}
+                                        variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
                                         className="bg-[#141414] border border-white/10 rounded-xl p-6 hover:border-osu/40 transition-colors"
                                     >
                                         <div className="w-9 h-9 rounded-full bg-osu/20 flex items-center justify-center mb-4">
-                                            <item.icon className="w-4 h-4 text-osu" />
+                                            <item.icon className="w-4 h-4 text-osu-text" />
                                         </div>
                                         <h3 className="text-white font-semibold text-base mb-2">{item.title}</h3>
                                         <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Real-time Feedback */}
                         <FeatureCard className="overflow-hidden">
@@ -498,7 +521,7 @@ export default function Features() {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="w-2 h-2 rounded-full bg-osu animate-pulse" />
-                                        <span className="text-osu text-xs font-bold uppercase tracking-wider">Upcoming Contest</span>
+                                        <span className="text-osu-text text-xs font-bold uppercase tracking-wider">Upcoming Contest</span>
                                     </div>
                                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
                                         Weekly Code Sprint #452

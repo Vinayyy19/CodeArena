@@ -1,4 +1,5 @@
 import Hero from "../components/homepage/Hero";
+import StatsSection from "../components/homepage/StatsSection";
 import SectionDivider from "../components/homepage/SectionDivider";
 import Features from "../components/homepage/Features";
 import FAQ from "../components/homepage/FAQ";
@@ -17,6 +18,8 @@ export default function HomePage() {
                 <div className="relative overflow-hidden w-full">
                     <Hero />
                 </div>
+
+                <StatsSection />
 
                 <SectionDivider className="translate-y-5 mt-2" />
 

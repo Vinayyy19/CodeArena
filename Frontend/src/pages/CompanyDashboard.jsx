@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, ToggleLeft, X, ToggleRight, Building2, Server, Save, Loader2, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSEO } from '../lib/useSEO';
 
 const CompanyDashboard = () => {
+    useSEO({ title: 'Company Dashboard - Deploy Challenge' });
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [startTime, setStartTime] = useState('');
@@ -20,14 +22,7 @@ const CompanyDashboard = () => {
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-
-    useEffect(() => {
-        if (!user || user.preference !== 'company') {
-            navigate('/profile');
-        }
-    }, [user, navigate]);
-
+    
     // Problem Handlers
     const addTestCase = () => {
         setTestCases([...testCases, { input: '', expectedOutput: '', isHidden: false }]);
@@ -128,8 +123,8 @@ const CompanyDashboard = () => {
                             {/* Line 1: Title and Strict Mode */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Challenge Title</label>
-                                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none" placeholder="e.g. Weekly Hacker Cup: Linked Lists" />
+                                    <label htmlFor="title" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Challenge Title</label>
+                                    <input id="title" name="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none" placeholder="e.g. Weekly Hacker Cup: Linked Lists" />
                                 </div>
 
                                 <div className="bg-[#120a06] border border-[#2d1e16] rounded-lg p-4 flex items-center justify-between">
@@ -146,30 +141,30 @@ const CompanyDashboard = () => {
                             {/* Line 2: Start, End, and Local Limit */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Start Time</label>
-                                    <input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none [color-scheme:dark]" />
+                                    <label htmlFor="startTime" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Start Time</label>
+                                    <input id="startTime" name="startTime" type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none [color-scheme:dark]" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">End Time</label>
-                                    <input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none [color-scheme:dark]" />
+                                    <label htmlFor="endTime" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">End Time</label>
+                                    <input id="endTime" name="endTime" type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none [color-scheme:dark]" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Clock size={12} /> Time Limit (Mins)</label>
-                                    <input type="number" min="0" value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none" placeholder="0 = infinite" />
+                                    <label htmlFor="timeLimit" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Clock size={12} /> Time Limit (Mins)</label>
+                                    <input id="timeLimit" name="timeLimit" type="number" min="0" value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none" placeholder="0 = infinite" />
                                 </div>
                             </div>
 
                             {/* Line 3: Difficulty and Category */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Difficulty</label>
-                                    <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none">
+                                    <label htmlFor="difficulty" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Difficulty</label>
+                                    <select id="difficulty" name="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none">
                                         <option>Easy</option><option>Medium</option><option>Hard</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
-                                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none">
+                                    <label htmlFor="category" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
+                                    <select id="category" name="category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none">
                                         <option>Arrays</option><option>Dynamic Programming</option><option>Graphs</option><option>Trees</option>
                                     </select>
                                 </div>
@@ -177,8 +172,8 @@ const CompanyDashboard = () => {
 
                             {/* Description */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Problem Statement / Contest Rules (Markdown)</label>
-                                <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none min-h-[150px]" placeholder="Given an array of integers... You must solve this within the time limit."></textarea>
+                                <label htmlFor="description" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Problem Statement / Contest Rules (Markdown)</label>
+                                <textarea id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3 focus:border-[var(--color-primary)] outline-none min-h-[150px]" placeholder="Given an array of integers... You must solve this within the time limit."></textarea>
                             </div>
 
                             {/* Test Cases */}
@@ -199,12 +194,12 @@ const CompanyDashboard = () => {
                                             )}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-[10px] text-gray-500 mb-1">Input Data</label>
-                                                    <input type="text" value={tc.input} onChange={e => updateTestCase(tcIndex, 'input', e.target.value)} className="w-full bg-[#1a1310] border border-[#2d1e16] text-white text-xs rounded px-3 py-2 font-mono" placeholder="[1, 2, 3]" />
+                                                    <label htmlFor={`inputData-${tcIndex}`} className="block text-[10px] text-gray-500 mb-1">Input Data</label>
+                                                    <input id={`inputData-${tcIndex}`} name={`inputData-${tcIndex}`} type="text" value={tc.input} onChange={e => updateTestCase(tcIndex, 'input', e.target.value)} className="w-full bg-[#1a1310] border border-[#2d1e16] text-white text-xs rounded px-3 py-2 font-mono" placeholder="[1, 2, 3]" />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-[10px] text-gray-500 mb-1">Expected Output</label>
-                                                    <input type="text" value={tc.expectedOutput} onChange={e => updateTestCase(tcIndex, 'expectedOutput', e.target.value)} className="w-full bg-[#1a1310] border border-[#2d1e16] text-white text-xs rounded px-3 py-2 font-mono" placeholder="6" />
+                                                    <label htmlFor={`expectedOutput-${tcIndex}`} className="block text-[10px] text-gray-500 mb-1">Expected Output</label>
+                                                    <input id={`expectedOutput-${tcIndex}`} name={`expectedOutput-${tcIndex}`} type="text" value={tc.expectedOutput} onChange={e => updateTestCase(tcIndex, 'expectedOutput', e.target.value)} className="w-full bg-[#1a1310] border border-[#2d1e16] text-white text-xs rounded px-3 py-2 font-mono" placeholder="6" />
                                                 </div>
                                             </div>
                                             <div className="mt-3 flex items-center gap-2">

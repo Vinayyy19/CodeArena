@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, ToggleLeft, ToggleRight, Loader2, ShieldCheck, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSEO } from '../lib/useSEO';
 
 const SuperadminDashboard = () => {
+    useSEO({
+        title: "Superadmin Control Panel | CodeArena",
+    });
+
     const [probTitle, setProbTitle] = useState('');
     const [probDesc, setProbDesc] = useState('');
     const [probDiff, setProbDiff] = useState('Medium');
@@ -13,15 +18,7 @@ const SuperadminDashboard = () => {
     const [msg, setMsg] = useState({ text: '', type: '' });
     const navigate = useNavigate();
 
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
     const token = localStorage.getItem('token');
-
-    // Protect Route
-    useEffect(() => {
-        if (!user || user.role !== 'superadmin') {
-            navigate('/');
-        }
-    }, [user, navigate]);
 
     const handleAddTestCase = () => setTestCases([...testCases, { input: '', expectedOutput: '', isHidden: false }]);
     const handleRemoveTestCase = (index) => setTestCases(testCases.filter((_, i) => i !== index));

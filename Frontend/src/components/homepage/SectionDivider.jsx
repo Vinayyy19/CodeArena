@@ -12,7 +12,7 @@ export default function SectionDivider({ className }) {
             </div>
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
                 <div className="bg-black p-1.5 rounded-full">
-                    <Swords className="text-osu w-8 h-8 opacity-80" />
+                    <Swords className="text-osu-text w-8 h-8 opacity-80" />
                 </div>
             </div>
         </div>

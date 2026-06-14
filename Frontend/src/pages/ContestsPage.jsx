@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Clock, Users, ArrowRight, ShieldAlert, Flame, Zap, CalendarDays, Timer, ChevronRight, Swords, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { fetchWithRetry } from '../lib/fetchWithRetry';
 import { useSEO } from '../lib/useSEO';
+import { Skeleton } from '../components/Skeleton';
 
 const ContestsPage = () => {
     useSEO({
@@ -26,6 +28,7 @@ const ContestsPage = () => {
                 }
             } catch (error) {
                 console.error("Failed to fetch contests", error);
+                toast.error("Failed to load contests from the server.");
             } finally {
                 setLoading(false);
             }
@@ -80,10 +83,11 @@ const ContestsPage = () => {
                 );
             } else {
                 const data = await res.json();
-                alert(data.message || 'Registration failed');
+                toast.error(data.message || 'Registration failed');
             }
         } catch (error) {
             console.error("Failed to register", error);
+            toast.error("An unexpected error occurred during registration.");
         }
     };
 
@@ -186,13 +190,13 @@ const ContestsPage = () => {
                     {loading ? (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {[...Array(4)].map((_, i) => (
-                                <div key={i} className="bg-black/90 border border-osu/40 rounded-xl p-6 animate-pulse shadow-2xl shadow-osu/10">
-                                    <div className="h-4 w-20 bg-[#2d1e16] rounded mb-4" />
-                                    <div className="h-6 w-48 bg-[#2d1e16] rounded mb-2" />
-                                    <div className="h-3 w-32 bg-[#2d1e16] rounded mb-6" />
-                                    <div className="h-16 bg-[#2d1e16] rounded mb-6" />
-                                    <div className="h-12 bg-[#2d1e16] rounded-lg mb-4" />
-                                    <div className="h-10 bg-[#2d1e16] rounded-lg" />
+                                <div key={i} className="bg-black/90 border border-osu/40 rounded-xl p-6 shadow-2xl shadow-osu/10">
+                                    <Skeleton className="h-4 w-20 rounded mb-4" />
+                                    <Skeleton className="h-6 w-48 rounded mb-2" />
+                                    <Skeleton className="h-3 w-32 rounded mb-6" />
+                                    <Skeleton className="h-16 rounded mb-6" />
+                                    <Skeleton className="h-12 rounded-lg mb-4" />
+                                    <Skeleton className="h-10 rounded-lg" />
                                 </div>
                             ))}
                         </div>

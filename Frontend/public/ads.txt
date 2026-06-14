@@ -1,0 +1,2 @@
+# Ads.txt file for CodeArena
+# Contact: admin@thecodearena.co.in

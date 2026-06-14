@@ -1,48 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useSEO } from '../lib/useSEO';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
 import ProfileSidebar from '../components/ProfileSidebar';
 import ProfileMiddleContent from '../components/ProfileMiddleContent';
 import ProfileRightSidebar from '../components/ProfileRightSidebar';
 
 const ProfilePage = () => {
-    const [userData, setUserData] = useState(null);
-    const [userStats, setUserStats] = useState(null);
-    const [loading, setLoading] = useState(true);
+    useSEO({
+        title: "Your Profile | CodeArena",
+    });
+
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchProfile = async () => {
+    const { data: userData, isLoading: isUserLoading } = useQuery({
+        queryKey: ['userProfile'],
+        queryFn: async () => {
             const token = localStorage.getItem('token');
-            if (!token) {
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/user/profile`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
                 navigate('/auth');
-                return;
+                toast.error('Session expired. Please log in again.');
+                throw new Error('Unauthorized');
             }
+            if (!res.ok) throw new Error('Failed to fetch profile');
+            return res.json();
+        }
+    });
 
-            try {
-                const [resProfile, resStats] = await Promise.all([
-                    fetch(`${import.meta.env.VITE_API_URL}/api/user/profile`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                    fetch(`${import.meta.env.VITE_API_URL}/api/user/profile/stats`, { headers: { 'Authorization': `Bearer ${token}` } })
-                ]);
+    const { data: userStats, isLoading: isStatsLoading } = useQuery({
+        queryKey: ['userStats'],
+        queryFn: async () => {
+            const token = localStorage.getItem('token');
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/user/profile/stats`, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            if (!res.ok) throw new Error('Failed to fetch stats');
+            return res.json();
+        },
+        enabled: !!userData // Only fetch stats if profile fetched successfully
+    });
 
-                if (resProfile.ok && resStats.ok) {
-                    const dataProfile = await resProfile.json();
-                    const dataStats = await resStats.json();
-                    setUserData(dataProfile);
-                    setUserStats(dataStats);
-                } else {
-                    // Token might be expired
-                    localStorage.removeItem('token');
-                    navigate('/auth');
-                }
-            } catch (error) {
-                console.error("Failed to fetch profile", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const loading = isUserLoading || isStatsLoading;
 
-        fetchProfile();
-    }, [navigate]);
+
 
     if (loading) {
         return (
@@ -81,7 +88,9 @@ const ProfilePage = () => {
     if (!userData || !userStats) return null;
 
     const handleProfileUpdate = (updatedUser) => {
-        setUserData(updatedUser);
+        // Optimistically update the cache
+        queryClient.setQueryData(['profile'], updatedUser);
+        toast.success('Profile updated successfully!');
     };
 
     return (

@@ -579,7 +579,7 @@ const CodingWorkspace = () => {
                 {/* Overall Screen Backdrop for Arena Bot Spotlight */}
                 {showHintOverlay && (
                     <div
-                        className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm pointer-events-auto flex justify-center items-center"
+                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm pointer-events-auto flex justify-center items-center"
                         onClick={() => setShowHintOverlay(false)}
                     >
                         <div className="absolute top-[200px] left-[15%] md:left-[25%] flex flex-col items-center pointer-events-none">

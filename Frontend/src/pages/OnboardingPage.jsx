@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { User, Building, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { fetchWithRetry } from '../lib/fetchWithRetry';
+import { useSEO } from '../lib/useSEO';
 
 const OnboardingPage = () => {
+    useSEO({
+        title: "Complete Your Profile | CodeArena",
+    });
     const [name, setName] = useState('');
     const [preference, setPreference] = useState(''); // 'user' or 'company'
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
 
-        if (!name) return setError('Please enter your name');
-        if (!preference) return setError('Please select an account type');
+        if (!name) return toast.error('Please enter your name');
+        if (!preference) return toast.error('Please select an account type');
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -24,7 +28,7 @@ const OnboardingPage = () => {
 
         setLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/complete-profile`, {
+            const res = await fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/auth/complete-profile`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,12 +41,13 @@ const OnboardingPage = () => {
             if (res.ok) {
                 // Update local user data
                 localStorage.setItem('user', JSON.stringify(data.user));
+                toast.success('Profile completed successfully!');
                 navigate('/profile');
             } else {
-                setError(data.message || 'Failed to update profile');
+                toast.error(data.message || 'Failed to update profile');
             }
         } catch (err) {
-            setError('Server error. Please try again.');
+            toast.error('Server error. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -61,17 +66,13 @@ const OnboardingPage = () => {
                         <p className="text-sm text-gray-400 mt-2">Just a few more details to set up your workspace.</p>
                     </div>
 
-                    {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-lg mb-6 text-center">
-                            {error}
-                        </div>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Name Input */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-400 mb-3">What should we call you?</label>
+                            <label htmlFor="name" className="block text-sm font-bold text-gray-400 mb-3">What should we call you?</label>
                             <input
+                                id="name"
+                                name="name"
                                 type="text"
                                 className="w-full bg-[#120a06] border border-[#2d1e16] text-white rounded-lg px-4 py-3.5 focus:outline-none focus:border-[var(--color-primary)] transition-colors text-lg"
                                 placeholder="Your full name"
