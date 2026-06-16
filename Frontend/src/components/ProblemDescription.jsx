@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Lightbulb, History, Star, Share2, Copy, Sparkles, Loader2, Bot, CheckCircle2, XCircle, Expand, Minimize2 } from 'lucide-react';
 import { marked } from 'marked';
 
 const ProblemDescription = ({ problem, isLoading, wrongAttempts, showHintOverlay, setShowHintOverlay, submissions, requestTabChange, isMaximized, onMaximize }) => {
+    const scrollRef = useRef(null);
     const [activeTab, setActiveTab] = useState('Description');
+
+    // Safely reset scroll when navigating to a new problem
+    useEffect(() => {
+        if (!problem?._id) return;
+        requestAnimationFrame(() => {
+            scrollRef.current?.scrollTo(0, 0);
+        });
+    }, [problem?._id]);
     const [isExplaining, setIsExplaining] = useState(false);
     const [explanation, setExplanation] = useState(null);
 
@@ -165,7 +174,7 @@ const ProblemDescription = ({ problem, isLoading, wrongAttempts, showHintOverlay
             </div>
 
             {/* Content Scroll Area */}
-            <div className="flex-1 overflow-y-auto p-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-black [&::-webkit-scrollbar-thumb]:bg-[#3f3f3f] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#555] text-gray-300 relative">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-black [&::-webkit-scrollbar-thumb]:bg-[#3f3f3f] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#555] text-gray-300 relative">
 
                 {activeTab === 'Description' && (
                     <>

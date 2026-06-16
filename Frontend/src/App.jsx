@@ -39,6 +39,10 @@ function AppContent() {
 
   // Silent wake-up ping to Render backend & Proctoring API (fires once on app load for real users only)
   React.useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
     if (!isBot) {
       fetchWithRetry(`${import.meta.env.VITE_API_URL}/api/health`).catch(() => { });

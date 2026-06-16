@@ -10,8 +10,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['code-arena_shield.webp', 'code-arena_logo.webp'],
+      includeAssets: ['code-arena_shield.webp', 'code-arena_logo.webp', 'apple-touch-icon.png'],
       manifest: {
+        id: "/",
         name: "CodeArena | AI-Proctored Competitive Programming",
         short_name: "CodeArena",
         description: "Host secure coding contests and online assessments with AI proctoring, live leaderboards, and custom challenges.",
@@ -21,16 +22,41 @@ export default defineConfig({
         theme_color: "#f66b15",
         icons: [
           {
-            src: "/code-arena_shield.webp",
+            src: "/icon-192x192.png",
             sizes: "192x192",
-            type: "image/webp",
-            purpose: "any maskable"
+            type: "image/png",
+            purpose: "any"
           },
           {
-            src: "/code-arena_shield.webp",
+            src: "/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable"
+          },
+          {
+            src: "/icon-512x512.png",
             sizes: "512x512",
-            type: "image/webp",
-            purpose: "any maskable"
+            type: "image/png",
+            purpose: "any"
+          },
+          {
+            src: "/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable"
+          }
+        ],
+        screenshots: [
+          {
+            src: "/screenshot-desktop.png",
+            sizes: "1907x932",
+            type: "image/png",
+            form_factor: "wide"
+          },
+          {
+            src: "/screenshot-mobile.png",
+            sizes: "372x818",
+            type: "image/png"
           }
         ]
       },

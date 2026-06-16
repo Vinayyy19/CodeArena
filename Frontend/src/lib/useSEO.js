@@ -7,14 +7,6 @@ export function useSEO({ title, description, keywords, image, canonical }) {
       history.scrollRestoration = 'manual';
     }
 
-    // Force Scroll to Top exactly when the lazy-loaded component mounts.
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    
-    const scrollingContainers = document.querySelectorAll('.overflow-y-auto, .custom-scrollbar');
-    scrollingContainers.forEach(el => el.scrollTo({ top: 0, left: 0, behavior: 'instant' }));
-
     // 1. Update Document Title & Open Graph / Twitter Titles
     if (title) {
       document.title = title;

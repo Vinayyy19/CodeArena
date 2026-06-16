@@ -53,7 +53,7 @@ const ProfilePage = () => {
 
     if (loading) {
         return (
-            <div className="flex-1 overflow-y-auto w-full max-w-7xl mx-auto p-6 flex flex-col md:flex-row gap-6 custom-scrollbar">
+            <div className="flex-1 w-full max-w-7xl mx-auto p-6 flex flex-col md:flex-row gap-6 custom-scrollbar">
                 {/* Left Sidebar Skeleton */}
                 <div className="w-full md:w-80 flex flex-col gap-6 flex-shrink-0 animate-pulse">
                     <div className="bg-[#1a1310] border border-[#2d1e16] rounded-xl p-6 flex flex-col items-center">
@@ -94,7 +94,7 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-6 custom-scrollbar text-sm">
+        <div className="flex-1 overflow-x-hidden w-full max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-6 custom-scrollbar text-sm">
 
             {/* Left Sidebar */}
             <div className="w-full md:w-80 flex flex-col gap-6 flex-shrink-0">

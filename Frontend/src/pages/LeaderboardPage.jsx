@@ -60,7 +60,7 @@ const LeaderboardPage = () => {
     const avatarColors = ['bg-indigo-900 text-indigo-300', 'bg-teal-900 text-teal-300', 'bg-blue-900 text-blue-300', 'bg-purple-900 text-purple-300', 'bg-orange-900 text-orange-300', 'bg-rose-900 text-rose-300', 'bg-emerald-900 text-emerald-300', 'bg-cyan-900 text-cyan-300'];
 
     return (
-        <div className="flex-1 overflow-y-auto w-full mx-auto px-3 sm:px-4 md:px-10 py-4 md:py-10 custom-scrollbar text-sm bg-black min-h-screen">
+        <div className="flex-1 w-full mx-auto px-3 sm:px-4 md:px-10 py-4 md:py-10 custom-scrollbar text-sm bg-black min-h-screen">
             <div className="max-w-6xl mx-auto flex flex-col gap-6 md:gap-8 pb-10">
 
                 {/* Header */}
